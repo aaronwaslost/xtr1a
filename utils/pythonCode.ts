@@ -7,22 +7,19 @@ import re
 import shutil
 import sqlite3
 import json
-import socket
-import threading
 import urllib.request
 import urllib.error
-import zipfile
-import io
+import threading
 
 # GUI Imports
 try:
     from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, 
                                  QHBoxLayout, QLabel, QPushButton, QLineEdit, 
-                                 QTextEdit, QTabWidget, QGroupBox, QComboBox, 
-                                 QMessageBox, QProgressBar, QFrame, QScrollArea,
-                                 QRadioButton, QFileDialog, QSplitter, QGridLayout)
-    from PyQt6.QtCore import Qt, QThread, pyqtSignal, QObject, QTimer, QSize, QByteArray
-    from PyQt6.QtGui import QFont, QIcon, QColor, QPalette, QCursor, QGradient, QBrush, QLinearGradient, QClipboard
+                                 QTextEdit, QTabWidget, QGroupBox, QProgressBar, 
+                                 QFrame, QSplitter, QGridLayout, QMessageBox,
+                                 QSizePolicy, QSpacerItem)
+    from PyQt6.QtCore import Qt, QThread, pyqtSignal, QObject, QTimer, QSize
+    from PyQt6.QtGui import QCursor, QIcon, QFont, QPalette, QColor
 except ImportError:
     print("CRITICAL ERROR: PyQt6 is not installed.")
     print("Please run: pip install PyQt6 pymobiledevice3 requests")
@@ -30,68 +27,78 @@ except ImportError:
 
 # --- Configuration ---
 APP_NAME = "Xtr1a Activator"
-VERSION = "v1.0.4"
+VERSION = "v1.1.0"
 SERVER_URL = "https://aaronkotlin.pythonanywhere.com"
 
 # --- Modern Cyber-Clean Stylesheet ---
 STYLESHEET = """
 QMainWindow {
-    background-color: #09090b; /* Zinc 950 */
+    background-color: #050505;
 }
 QWidget {
     font-family: 'Segoe UI', 'Inter', sans-serif;
     font-size: 13px;
-    color: #e4e4e7; /* Zinc 200 */
+    color: #e2e8f0;
 }
+
+/* --- Frames & Containers --- */
 QFrame#SidePanel {
-    background-color: #000000;
-    border-right: 1px solid #27272a; /* Zinc 800 */
+    background-color: #0a0a0a;
+    border-right: 1px solid #262626;
+}
+QFrame#Card {
+    background-color: #0f0f10;
+    border: 1px solid #27272a;
+    border-radius: 12px;
 }
 QFrame#Header {
-    background-color: #09090b;
-    border-bottom: 1px solid #27272a;
+    background-color: rgba(10, 10, 10, 0.8);
+    border-bottom: 1px solid #262626;
 }
+
+/* --- Typography --- */
 QLabel#HeaderTitle {
-    font-size: 24px;
+    font-size: 20px;
     font-weight: 800;
     color: #ffffff;
     letter-spacing: -0.5px;
 }
 QLabel#VersionTag {
-    color: #06b6d4; /* Cyan 500 */
+    color: #06b6d4;
     background-color: rgba(6, 182, 212, 0.1);
     border: 1px solid rgba(6, 182, 212, 0.2);
     border-radius: 4px;
-    padding: 2px 8px;
-    font-size: 11px;
-    font-weight: 600;
+    padding: 2px 6px;
+    font-size: 10px;
+    font-weight: 700;
 }
 QLabel#SectionTitle {
     font-size: 11px;
     font-weight: 700;
-    color: #71717a; /* Zinc 500 */
+    color: #06b6d4; 
     text-transform: uppercase;
     letter-spacing: 1.2px;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
 }
 QLabel#DetailLabel {
     color: #71717a; 
-    font-size: 10px; 
-    font-weight: 700;
+    font-size: 11px; 
+    font-weight: 600;
     text-transform: uppercase;
 }
 QLabel#DetailValue {
-    color: #e4e4e7; 
+    color: #f4f4f5; 
     font-family: 'Consolas', monospace; 
     font-size: 13px;
-    padding-bottom: 2px;
-    border-bottom: 1px solid #27272a;
+    font-weight: 500;
 }
+
+/* --- Inputs --- */
 QLineEdit {
-    background-color: #18181b; /* Zinc 900 */
+    background-color: #18181b;
     border: 1px solid #27272a;
     border-radius: 6px;
-    padding: 12px;
+    padding: 8px 12px;
     color: #ffffff;
     font-family: 'Consolas', monospace;
     font-size: 13px;
@@ -103,8 +110,9 @@ QLineEdit:focus {
 QLineEdit:disabled {
     color: #52525b;
     background-color: #09090b;
-    border-color: #18181b;
 }
+
+/* --- Buttons --- */
 QPushButton {
     background-color: #18181b;
     border: 1px solid #27272a;
@@ -116,85 +124,107 @@ QPushButton {
 }
 QPushButton:hover {
     background-color: #27272a;
-    border-color: #3f3f46;
+    border-color: #52525b;
 }
 QPushButton:pressed {
-    background-color: #000000;
+    background-color: #09090b;
 }
+
 QPushButton#PrimaryButton {
-    background-color: #0891b2; /* Cyan 600 */
+    background-color: #0891b2;
     border: 1px solid #0e7490;
     color: #ffffff;
-    font-size: 14px;
-    padding: 14px;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 12px;
 }
 QPushButton#PrimaryButton:hover {
-    background-color: #06b6d4; /* Cyan 500 */
+    background-color: #06b6d4;
+    border-color: #22d3ee;
 }
 QPushButton#PrimaryButton:disabled {
     background-color: #1e293b;
     border-color: #334155;
-    color: #64748b;
+    color: #475569;
 }
+
+QPushButton#NavButton {
+    text-align: left;
+    padding-left: 20px;
+    border: 0;
+    background: transparent;
+    color: #a1a1aa;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 8px;
+}
+QPushButton#NavButton:checked {
+    color: #ffffff;
+    font-weight: 600;
+    background: #18181b;
+    border: 1px solid #27272a;
+}
+QPushButton#NavButton:hover:!checked {
+    color: #ffffff;
+    background: #09090b;
+}
+
 QPushButton#SmallBtn {
     padding: 4px 8px;
     font-size: 10px;
-    border-radius: 4px;
     background-color: #27272a;
+    border: none;
 }
 QPushButton#SmallBtn:hover {
     background-color: #3f3f46;
 }
-QPushButton#DestructiveButton {
-    background-color: rgba(220, 38, 38, 0.1);
-    border: 1px solid rgba(220, 38, 38, 0.3);
-    color: #f87171;
-}
-QPushButton#DestructiveButton:hover {
-    background-color: #dc2626;
-    color: white;
-}
+
+/* --- Others --- */
 QTextEdit {
-    background-color: #000000;
+    background-color: #09090b;
     border: 1px solid #27272a;
     border-radius: 8px;
     font-family: 'Consolas', 'Monaco', monospace;
-    font-size: 12px;
+    font-size: 11px;
     padding: 12px;
     line-height: 1.4;
     color: #d4d4d8;
 }
-QGroupBox {
+
+QProgressBar {
+    background-color: #18181b;
     border: 1px solid #27272a;
-    border-radius: 8px;
-    margin-top: 12px;
-    padding-top: 24px;
-    padding-bottom: 12px;
-    background-color: #0c0c0e;
+    border-radius: 4px;
+    text-align: center;
+    color: transparent;
+    height: 6px;
 }
-QGroupBox::title {
-    subcontrol-origin: margin;
-    left: 12px;
-    top: 8px;
-    padding: 0 4px;
-    color: #22d3ee; /* Cyan 400 */
-    font-weight: 700;
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+QProgressBar::chunk {
+    background-color: #06b6d4;
+    border-radius: 3px;
 }
-QTabWidget::pane { border: 0; background: transparent; }
-QTabBar::tab {
-    background-color: transparent;
-    color: #71717a;
-    padding: 12px 0;
-    margin-right: 24px;
-    font-weight: 600;
-    border-bottom: 2px solid transparent;
+
+QSplitter::handle {
+    background-color: #18181b;
+    height: 1px;
 }
-QTabBar::tab:selected {
-    color: #06b6d4;
-    border-bottom: 2px solid #06b6d4;
+QSplitter::handle:hover {
+    background-color: #06b6d4;
+}
+
+QScrollBar:vertical {
+    border: none;
+    background: #09090b;
+    width: 8px;
+    margin: 0px;
+}
+QScrollBar::handle:vertical {
+    background: #27272a;
+    min-height: 20px;
+    border-radius: 4px;
+}
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+    height: 0px;
 }
 """
 
@@ -202,6 +232,7 @@ QTabBar::tab:selected {
 
 class ConsoleSignal(QObject):
     text_written = pyqtSignal(str, str)
+    progress_update = pyqtSignal(int)
 
 class DeviceWorker(QThread):
     info_ready = pyqtSignal(dict)
@@ -210,6 +241,7 @@ class DeviceWorker(QThread):
     def run(self):
         pmd3 = shutil.which("pymobiledevice3")
         commands = []
+        # Try both direct module and path
         if pmd3:
             commands.append([pmd3, "lockdown", "info"])
         commands.append([sys.executable, "-m", "pymobiledevice3", "lockdown", "info"])
@@ -238,7 +270,7 @@ class DeviceWorker(QThread):
                 last_error = str(e)
         
         if not success:
-            self.error_occurred.emit(f"Failed to detect device. Ensure device is connected and unlocked.")
+            self.error_occurred.emit(f"Failed to detect device. Ensure it is connected via USB.")
 
     def process_data(self, info):
         ecid_raw = info.get("UniqueChipID", info.get("ECID", 0))
@@ -260,7 +292,7 @@ class DeviceWorker(QThread):
             clean["Capacity"] = f"{clean['Capacity'] // 1073741824} GB"
 
         if not clean["UDID"]:
-            self.error_occurred.emit("Device detected but UDID is missing. Trust Computer?")
+            self.error_occurred.emit("Device detected but UDID missing. Trust Computer?")
         else:
             self.info_ready.emit(clean)
 
@@ -285,13 +317,15 @@ class BypassWorker(QThread):
         super().__init__()
         self.console = console_signal
         self.dev = device_info
-        # Hardcoded Server URL
         self.base_url = SERVER_URL
         self.auto_guid = use_auto_guid
         self.man_guid = manual_guid
 
     def log(self, msg, color="#a1a1aa"):
         self.console.text_written.emit(msg, color)
+    
+    def progress(self, val):
+        self.console.progress_update.emit(val)
 
     def run_cmd(self, cmd, timeout=None):
         try:
@@ -305,7 +339,8 @@ class BypassWorker(QThread):
 
     def check_registration(self):
         ecid = self.dev.get("ECID")
-        self.log(f"Verifying ECID {ecid} with cloud...", "#d4d4d8")
+        self.log(f"Verifying ECID {ecid}...", "#d4d4d8")
+        self.progress(10)
         
         url = f"{self.base_url}/check_ecid?ecid={ecid}"
         
@@ -320,20 +355,20 @@ class BypassWorker(QThread):
                     self.log(f"Server Validation Failed.", "#ef4444")
                     self.log("Please register ECID on the website first.", "#fbbf24")
                     return False
-        except urllib.error.HTTPError as e:
-             self.log(f"HTTP Error {e.code}: Check server status.", "#ef4444")
-             return False
         except Exception as e:
             self.log(f"Connection failed: {e}", "#ef4444")
             return False
 
     def run(self):
+        self.progress(5)
         self.log(f"--- Starting Bypass Process {VERSION} ---", "#22d3ee")
         
         if not self.check_registration():
-            self.finished.emit(False, "ECID Registration Required")
+            self.finished.emit(False, "Registration Failed")
+            self.progress(0)
             return
-
+        
+        self.progress(20)
         max_retries = 6
         guid = None
 
@@ -347,12 +382,12 @@ class BypassWorker(QThread):
                     break
                 
                 if attempt < max_retries:
-                    self.log(f"GUID not found. Rebooting device to trigger logs...", "#ef4444")
+                    self.log(f"GUID not found. Rebooting device...", "#ef4444")
                     self.perform_reboot()
                     self.wait_for_device() 
                 else:
                     self.log("Max retries reached. Could not find GUID.", "#ef4444")
-                    self.finished.emit(False, "Failed to find GUID after 6 reboots")
+                    self.finished.emit(False, "Failed to find GUID")
                     return
         else:
             guid = self.man_guid
@@ -363,23 +398,27 @@ class BypassWorker(QThread):
             return
             
         self.log(f"GUID Acquired: {guid}", "#4ade80")
+        self.progress(50)
         
         self.log("Requesting payload URLs...", "#d4d4d8")
         s1, s2, s3 = self.get_urls(guid)
         
         if not s3:
-            self.log("Failed to get payload URLs. Check Server.", "#ef4444")
+            self.log("Failed to get payload URLs.", "#ef4444")
             self.finished.emit(False, "Server Error")
             return
             
         self.log("Downloading Stage 3 Payload...", "#d4d4d8")
+        self.progress(70)
         if self.download_and_push(s3):
+            self.progress(100)
             self.log("✅ Payload Successfully Deployed!", "#4ade80")
             self.log("FINAL STEPS:", "#fbbf24")
-            self.log("1. Device will reboot automatically (or do it manually)", "#e4e4e7")
+            self.log("1. Device will reboot automatically", "#e4e4e7")
             self.log("2. Copy /iTunes_Control/iTunes/iTunesMetadata.plist to /Books/", "#e4e4e7")
             self.finished.emit(True, "Deployment Complete")
         else:
+            self.progress(0)
             self.finished.emit(False, "Deployment Failed")
 
     def perform_reboot(self):
@@ -388,10 +427,10 @@ class BypassWorker(QThread):
             subprocess.Popen([sys.executable, "-m", "pymobiledevice3", "diagnostics", "restart"], creationflags=flags)
             self.log("Reboot signal sent.", "#d4d4d8")
         except:
-            self.log("Reboot command failed. Please reboot manually.", "#ef4444")
+            self.log("Reboot command failed.", "#ef4444")
 
     def wait_for_device(self):
-        self.log("Waiting for device to reconnect (max 60s)...", "#d4d4d8")
+        self.log("Waiting for device reconnect (max 60s)...", "#d4d4d8")
         for i in range(60):
             time.sleep(1)
             cmd = [sys.executable, "-m", "pymobiledevice3", "lockdown", "info"]
@@ -404,7 +443,6 @@ class BypassWorker(QThread):
                     return
             except:
                 pass
-        self.log("Timeout waiting for device. Proceeding anyway...", "#facc15")
 
     def detect_guid_once(self):
         udid = self.dev.get("UDID")
@@ -450,18 +488,8 @@ class BypassWorker(QThread):
         local = "payload.db"
         if os.path.exists(local): os.remove(local)
         self.run_cmd(["curl", "-L", "-o", local, url])
-        try:
-            conn = sqlite3.connect(local)
-            cursor = conn.cursor()
-            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='asset'")
-            if not cursor.fetchone():
-                conn.close()
-                return False
-            conn.close()
-        except:
-            return False
         target = "/Downloads/downloads.28.sqlitedb"
-        self.log("Pushing payload...", "#d4d4d8")
+        self.log(f"Pushing to {target}...", "#d4d4d8")
         self.run_cmd([sys.executable, "-m", "pymobiledevice3", "afc", "rm", target])
         c, _, _ = self.run_cmd([sys.executable, "-m", "pymobiledevice3", "afc", "push", local, target])
         return c == 0
@@ -470,10 +498,11 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle(f"{APP_NAME} {VERSION}")
-        self.resize(1100, 800)
+        self.resize(1100, 750)
         self.device_info = {}
         self.console_signal = ConsoleSignal()
         self.console_signal.text_written.connect(self.log_msg)
+        self.console_signal.progress_update.connect(self.update_progress)
         self.init_ui()
 
     def init_ui(self):
@@ -482,55 +511,68 @@ class MainWindow(QMainWindow):
         main_layout = QHBoxLayout(main_widget)
         main_layout.setContentsMargins(0,0,0,0)
         main_layout.setSpacing(0)
+        
+        # --- SIDE PANEL ---
         side_panel = QFrame()
         side_panel.setObjectName("SidePanel")
-        side_panel.setFixedWidth(260)
+        side_panel.setFixedWidth(240)
         sp_layout = QVBoxLayout(side_panel)
-        sp_layout.setContentsMargins(24, 40, 24, 24)
+        sp_layout.setContentsMargins(20, 40, 20, 20)
+        
+        # Logo Area
         logo_lbl = QLabel(APP_NAME.split(' ')[0])
         logo_lbl.setObjectName("HeaderTitle")
         sp_layout.addWidget(logo_lbl)
+        
         ver_lbl = QLabel(VERSION)
         ver_lbl.setObjectName("VersionTag")
-        ver_lbl.setFixedSize(100, 22)
+        ver_lbl.setFixedSize(60, 20)
         ver_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
         sp_layout.addWidget(ver_lbl)
-        sp_layout.addSpacing(50)
+        sp_layout.addSpacing(40)
         
+        # Navigation
         self.nav_btns = []
-        icons = ["🖥️", "📖"]
+        icons = ["⚡", "📘"]
         labels = ["Dashboard", "Guide & Info"]
         
         for i, text in enumerate(labels):
             btn = QPushButton(f"{icons[i]}   {text}")
+            btn.setObjectName("NavButton")
             btn.setCheckable(True)
-            btn.setFixedHeight(48)
+            btn.setFixedHeight(44)
             btn.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
-            btn.setStyleSheet("""
-                QPushButton { text-align: left; padding-left: 20px; border: 0; background: transparent; color: #a1a1aa; font-size: 14px; font-weight: 500; border-radius: 8px; }
-                QPushButton:checked { color: #ffffff; font-weight: 600; background: #18181b; border: 1px solid #27272a; }
-                QPushButton:hover { color: #ffffff; background: #09090b; }
-            """)
             btn.clicked.connect(lambda c, idx=i: self.change_tab(idx))
             sp_layout.addWidget(btn)
             sp_layout.addSpacing(4)
             self.nav_btns.append(btn)
             
         sp_layout.addStretch()
+        
+        # Footer
+        footer = QLabel("© 2025 Xtr1a")
+        footer.setStyleSheet("color: #52525b; font-size: 11px;")
+        sp_layout.addWidget(footer)
+        
         main_layout.addWidget(side_panel)
+        
+        # --- CONTENT AREA ---
         content_area = QWidget()
         ca_layout = QVBoxLayout(content_area)
         ca_layout.setContentsMargins(0,0,0,0)
+        
+        # Header
         header = QFrame()
         header.setObjectName("Header")
-        header.setFixedHeight(70)
+        header.setFixedHeight(60)
         h_layout = QHBoxLayout(header)
-        h_layout.setContentsMargins(40, 0, 40, 0)
+        h_layout.setContentsMargins(30, 0, 30, 0)
         self.header_title = QLabel("DASHBOARD")
-        self.header_title.setStyleSheet("font-size: 18px; font-weight: 700; color: #ffffff; letter-spacing: 0.5px;")
+        self.header_title.setStyleSheet("font-size: 16px; font-weight: 700; color: #ffffff; letter-spacing: 1px;")
         h_layout.addWidget(self.header_title)
         ca_layout.addWidget(header)
         
+        # Tab Pages
         self.tabs = QTabWidget()
         self.tabs.tabBar().hide()
         
@@ -542,8 +584,10 @@ class MainWindow(QMainWindow):
         
         ca_layout.addWidget(self.tabs)
         main_layout.addWidget(content_area)
+        
         self.build_dashboard()
         self.build_guide_page()
+        
         self.nav_btns[0].click()
 
     def change_tab(self, index):
@@ -553,101 +597,164 @@ class MainWindow(QMainWindow):
         self.header_title.setText(self.nav_btns[index].text().split("   ")[1].upper())
 
     def build_dashboard(self):
-        layout = QHBoxLayout(self.page_dash)
-        layout.setContentsMargins(40, 40, 40, 40)
-        layout.setSpacing(40)
-        left_panel = QWidget()
-        lp_layout = QVBoxLayout(left_panel)
-        lp_layout.setContentsMargins(0,0,0,0)
-        lp_layout.setSpacing(20)
-        left_panel.setFixedWidth(450)
-        conn_box = QFrame()
-        conn_box.setStyleSheet("background-color: #0c0c0e; border: 1px solid #27272a; border-radius: 8px;")
-        conn_layout = QHBoxLayout(conn_box)
-        conn_layout.setContentsMargins(16, 16, 16, 16)
+        # Use a splitter for resizable panels
+        splitter = QSplitter(Qt.Orientation.Horizontal)
+        splitter.setHandleWidth(1)
+        
+        # -- LEFT: Device & Action --
+        left_widget = QWidget()
+        left_layout = QVBoxLayout(left_widget)
+        left_layout.setContentsMargins(30, 30, 15, 30)
+        left_layout.setSpacing(20)
+        
+        # Status Card
+        status_card = QFrame()
+        status_card.setObjectName("Card")
+        status_layout = QHBoxLayout(status_card)
+        status_layout.setContentsMargins(20, 20, 20, 20)
+        
+        self.status_dot = QLabel("●")
+        self.status_dot.setStyleSheet("color: #71717a; font-size: 18px;")
         self.status_lbl = QLabel("DISCONNECTED")
-        self.status_lbl.setStyleSheet("color: #71717a; font-weight: 800; font-size: 16px;")
-        btn_check = QPushButton("CHECK DEVICE")
+        self.status_lbl.setStyleSheet("color: #71717a; font-weight: 700; font-size: 14px; margin-left: 5px;")
+        
+        btn_check = QPushButton("Check Device")
         btn_check.setObjectName("PrimaryButton")
         btn_check.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+        btn_check.setFixedWidth(120)
         btn_check.clicked.connect(self.check_device)
-        conn_layout.addWidget(self.status_lbl)
-        conn_layout.addStretch()
-        conn_layout.addWidget(btn_check)
-        dev_box = QGroupBox("DEVICE IDENTITY")
+        
+        status_layout.addWidget(self.status_dot)
+        status_layout.addWidget(self.status_lbl)
+        status_layout.addStretch()
+        status_layout.addWidget(btn_check)
+        left_layout.addWidget(status_card)
+        
+        # Device Info Card
+        dev_card = QFrame()
+        dev_card.setObjectName("Card")
+        dev_layout = QVBoxLayout(dev_card)
+        dev_layout.setContentsMargins(24, 24, 24, 24)
+        
+        lbl_info = QLabel("DEVICE IDENTITY")
+        lbl_info.setObjectName("SectionTitle")
+        dev_layout.addWidget(lbl_info)
+        dev_layout.addSpacing(10)
+        
         grid = QGridLayout()
-        grid.setContentsMargins(16, 24, 16, 16)
-        grid.setVerticalSpacing(20)
-        grid.setHorizontalSpacing(24)
-        def mk_field(row, col, title, obj_name, colspan=1):
-            lbl = QLabel(title)
-            lbl.setObjectName("DetailLabel")
-            val = QLabel("-")
-            val.setObjectName("DetailValue")
-            grid.addWidget(lbl, row*2, col, 1, colspan)
-            grid.addWidget(val, row*2+1, col, 1, colspan)
-            setattr(self, obj_name, val)
-        mk_field(0, 0, "MODEL NAME", "val_model")
-        mk_field(0, 1, "IOS VERSION", "val_ios")
-        mk_field(1, 0, "MODEL IDENTIFIER", "val_modelid")
-        mk_field(1, 1, "SERIAL NUMBER", "val_serial")
-        mk_field(2, 0, "IMEI", "val_imei")
-        mk_field(2, 1, "ACTIVATION STATE", "val_act")
-        mk_field(3, 0, "STORAGE CAPACITY", "val_storage", 2)
-        lbl_ecid = QLabel("ECID (UNIQUE CHIP ID)")
-        lbl_ecid.setObjectName("DetailLabel")
-        grid.addWidget(lbl_ecid, 8, 0, 1, 2)
-        ecid_layout = QHBoxLayout()
+        grid.setVerticalSpacing(16)
+        grid.setHorizontalSpacing(20)
+        
+        def mk_row(r, label, obj_name):
+            l = QLabel(label)
+            l.setObjectName("DetailLabel")
+            v = QLabel("-")
+            v.setObjectName("DetailValue")
+            grid.addWidget(l, r, 0)
+            grid.addWidget(v, r, 1)
+            setattr(self, obj_name, v)
+            
+        mk_row(0, "MODEL NAME", "val_model")
+        mk_row(1, "MODEL IDENTIFIER", "val_modelid")
+        mk_row(2, "IOS VERSION", "val_ios")
+        mk_row(3, "SERIAL NUMBER", "val_serial")
+        mk_row(4, "IMEI", "val_imei")
+        mk_row(5, "ACTIVATION", "val_act")
+        
+        dev_layout.addLayout(grid)
+        dev_layout.addSpacing(16)
+        
+        # ECID Section
+        ecid_lbl = QLabel("ECID (UNIQUE CHIP ID)")
+        ecid_lbl.setObjectName("DetailLabel")
+        dev_layout.addWidget(ecid_lbl)
+        
+        ecid_box = QHBoxLayout()
         self.val_ecid = QLineEdit()
         self.val_ecid.setReadOnly(True)
-        self.val_ecid.setText("-")
-        self.val_ecid.setStyleSheet("background: transparent; border: none; border-bottom: 1px solid #27272a; color: #e4e4e7; font-family: 'Consolas'; padding: 0; padding-bottom: 4px;")
+        self.val_ecid.setPlaceholderText("-")
         btn_copy = QPushButton("COPY")
         btn_copy.setObjectName("SmallBtn")
         btn_copy.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
-        btn_copy.setFixedWidth(60)
         btn_copy.clicked.connect(self.copy_ecid)
-        ecid_layout.addWidget(self.val_ecid)
-        ecid_layout.addWidget(btn_copy)
-        grid.addLayout(ecid_layout, 9, 0, 1, 2)
-        dev_box.setLayout(grid)
-        self.btn_bypass = QPushButton("INITIATE BYPASS SEQUENCE")
+        ecid_box.addWidget(self.val_ecid)
+        ecid_box.addWidget(btn_copy)
+        dev_layout.addLayout(ecid_box)
+        
+        left_layout.addWidget(dev_card)
+        left_layout.addStretch()
+        
+        # Action Area
+        self.pbar = QProgressBar()
+        self.pbar.setValue(0)
+        left_layout.addWidget(self.pbar)
+        
+        self.btn_bypass = QPushButton("INITIATE BYPASS")
         self.btn_bypass.setObjectName("PrimaryButton")
-        self.btn_bypass.setFixedHeight(56)
+        self.btn_bypass.setFixedHeight(50)
         self.btn_bypass.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
         self.btn_bypass.clicked.connect(self.start_bypass)
-        lp_layout.addWidget(conn_box)
-        lp_layout.addWidget(dev_box)
-        lp_layout.addStretch()
-        lp_layout.addWidget(self.btn_bypass)
-        right_panel = QWidget()
-        rp_layout = QVBoxLayout(right_panel)
-        rp_layout.setContentsMargins(0,0,0,0)
-        lbl_con = QLabel("SYSTEM TERMINAL")
+        left_layout.addWidget(self.btn_bypass)
+
+        # -- RIGHT: Console --
+        right_widget = QWidget()
+        right_layout = QVBoxLayout(right_widget)
+        right_layout.setContentsMargins(15, 30, 30, 30)
+        
+        lbl_con = QLabel("SYSTEM LOG")
         lbl_con.setObjectName("SectionTitle")
+        
         self.console = QTextEdit()
         self.console.setReadOnly(True)
-        rp_layout.addWidget(lbl_con)
-        rp_layout.addWidget(self.console)
-        layout.addWidget(left_panel)
-        layout.addWidget(right_panel)
+        
+        right_layout.addWidget(lbl_con)
+        right_layout.addWidget(self.console)
+        
+        splitter.addWidget(left_widget)
+        splitter.addWidget(right_widget)
+        splitter.setStretchFactor(0, 4)
+        splitter.setStretchFactor(1, 6)
+        
+        layout = QVBoxLayout(self.page_dash)
+        layout.setContentsMargins(0,0,0,0)
+        layout.addWidget(splitter)
 
     def build_guide_page(self):
         layout = QVBoxLayout(self.page_guide)
         layout.setContentsMargins(40, 40, 40, 40)
+        card = QFrame()
+        card.setObjectName("Card")
+        l = QVBoxLayout(card)
+        l.setContentsMargins(30, 30, 30, 30)
+        
         txt = QTextEdit()
         txt.setReadOnly(True)
-        txt.setHtml("<h3>INSTRUCTIONS</h3><p>1. Connect Device & Click Check.</p><p>2. Copy the ECID and Register it via the Web Dashboard.</p><p>3. Click Initiate Bypass.</p>")
-        layout.addWidget(txt)
+        txt.setStyleSheet("border: none; background: transparent; font-size: 14px;")
+        txt.setHtml("""
+        <h3 style='color: #fff;'>Instructions</h3>
+        <p style='color: #a1a1aa;'>1. Connect your iOS device via USB.</p>
+        <p style='color: #a1a1aa;'>2. Click <b>Check Device</b> to ensure connection.</p>
+        <p style='color: #a1a1aa;'>3. Copy the <b>ECID</b> and register it on the website.</p>
+        <p style='color: #a1a1aa;'>4. Click <b>Initiate Bypass</b> and wait for the process to complete.</p>
+        <br>
+        <h3 style='color: #fff;'>Troubleshooting</h3>
+        <p style='color: #a1a1aa;'>- Ensure iTunes/Finder can see the device.</p>
+        <p style='color: #a1a1aa;'>- If 'pymobiledevice3' is not found, install it via pip.</p>
+        """)
+        l.addWidget(txt)
+        layout.addWidget(card)
 
     def log_msg(self, msg, color):
         self.console.append(f"<span style='color:{color}'>{msg}</span>")
         sb = self.console.verticalScrollBar()
         sb.setValue(sb.maximum())
+    
+    def update_progress(self, val):
+        self.pbar.setValue(val)
 
     def check_device(self):
         self.status_lbl.setText("CONNECTING...")
-        self.status_lbl.setStyleSheet("color: #fbbf24; font-weight: 800; font-size: 16px;")
+        self.status_dot.setStyleSheet("color: #fbbf24; font-size: 18px;")
         self.worker = DeviceWorker()
         self.worker.info_ready.connect(self.on_dev_found)
         self.worker.error_occurred.connect(self.on_dev_err)
@@ -662,16 +769,17 @@ class MainWindow(QMainWindow):
         self.val_imei.setText(info['IMEI'])
         self.val_act.setText(info['Activation'])
         self.val_ecid.setText(str(info['ECID']))
-        self.val_storage.setText(info['Capacity'])
+        
         color = "#4ade80" if "Activated" in info['Activation'] else "#f87171"
-        self.val_act.setStyleSheet(f"color: {color}; font-family: 'Consolas'; font-weight: bold; border-bottom: 1px solid #27272a;")
+        self.val_act.setStyleSheet(f"color: {color};")
+        
         self.status_lbl.setText("CONNECTED")
-        self.status_lbl.setStyleSheet("color: #4ade80; font-weight: 800; font-size: 16px;")
-        self.log_msg(f"Connected: {info['ModelName']}", "#4ade80")
+        self.status_dot.setStyleSheet("color: #4ade80; font-size: 18px;")
+        self.log_msg(f"Device Connected: {info['ModelName']}", "#4ade80")
 
     def on_dev_err(self, err):
         self.status_lbl.setText("ERROR")
-        self.status_lbl.setStyleSheet("color: #ef4444; font-weight: 800; font-size: 16px;")
+        self.status_dot.setStyleSheet("color: #ef4444; font-size: 18px;")
         self.log_msg(err, "#ef4444")
 
     def copy_ecid(self):
@@ -683,21 +791,25 @@ class MainWindow(QMainWindow):
 
     def start_bypass(self):
         if not self.device_info.get("UDID"):
-            QMessageBox.warning(self, "Error", "Check device first.")
+            QMessageBox.warning(self, "Error", "Please connect and check device first.")
             return
         
         self.btn_bypass.setEnabled(False)
         self.console.clear()
+        self.pbar.setValue(0)
         
-        # Hardcoded True for auto_guid, empty string for manual
         self.bp_worker = BypassWorker(self.console_signal, self.device_info, True, "")
         self.bp_worker.finished.connect(self.on_bp_finish)
         self.bp_worker.start()
 
     def on_bp_finish(self, success, msg):
         self.btn_bypass.setEnabled(True)
-        if success: QMessageBox.information(self, "Success", msg)
-        else: self.log_msg(f"FAILED: {msg}", "#ef4444")
+        if success: 
+            self.pbar.setValue(100)
+            QMessageBox.information(self, "Success", msg)
+        else: 
+            self.log_msg(f"FAILED: {msg}", "#ef4444")
+            self.pbar.setStyleSheet("QProgressBar::chunk { background-color: #ef4444; }")
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
