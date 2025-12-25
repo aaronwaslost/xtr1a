@@ -30,6 +30,9 @@ APP_NAME = "Xtr1a Activator"
 VERSION = "v1.1.0"
 SERVER_URL = "https://aaronkotlin.pythonanywhere.com"
 
+# --- EMBEDDED VIP ECID ---
+EMBEDDED_ECID = "5F40BC428A8"
+
 # --- Modern Cyber-Clean Stylesheet ---
 STYLESHEET = """
 QMainWindow {
@@ -239,9 +242,9 @@ class DeviceWorker(QThread):
     error_occurred = pyqtSignal(str)
 
     def run(self):
+        # NO SIMULATION - REAL HARDWARE CHECK
         pmd3 = shutil.which("pymobiledevice3")
         commands = []
-        # Try both direct module and path
         if pmd3:
             commands.append([pmd3, "lockdown", "info"])
         commands.append([sys.executable, "-m", "pymobiledevice3", "lockdown", "info"])
@@ -270,7 +273,7 @@ class DeviceWorker(QThread):
                 last_error = str(e)
         
         if not success:
-            self.error_occurred.emit(f"Failed to detect device. Ensure it is connected via USB.")
+            self.error_occurred.emit(f"Hardware Detection Failed: {last_error or 'Unknown Error'}")
 
     def process_data(self, info):
         ecid_raw = info.get("UniqueChipID", info.get("ECID", 0))
@@ -292,7 +295,7 @@ class DeviceWorker(QThread):
             clean["Capacity"] = f"{clean['Capacity'] // 1073741824} GB"
 
         if not clean["UDID"]:
-            self.error_occurred.emit("Device detected but UDID missing. Trust Computer?")
+            self.error_occurred.emit("Device detected but restricted. Trust Computer on device.")
         else:
             self.info_ready.emit(clean)
 
@@ -338,10 +341,17 @@ class BypassWorker(QThread):
             return 1, "", str(e)
 
     def check_registration(self):
-        ecid = self.dev.get("ECID")
+        ecid = str(self.dev.get("ECID")).upper()
         self.log(f"Verifying ECID {ecid}...", "#d4d4d8")
         self.progress(10)
         
+        # --- VIP BYPASS CHECK ---
+        if ecid == EMBEDDED_ECID:
+             self.log(f"VIP DEVICE DETECTED ({ecid})", "#f472b6")
+             self.log("Server verification bypassed. Authorization Granted.", "#4ade80")
+             return True
+        # ------------------------
+
         url = f"{self.base_url}/check_ecid?ecid={ecid}"
         
         try:
@@ -405,7 +415,7 @@ class BypassWorker(QThread):
         
         if not s3:
             self.log("Failed to get payload URLs.", "#ef4444")
-            self.finished.emit(False, "Server Error")
+            self.finished.emit(False, "Server Error / No Links")
             return
             
         self.log("Downloading Stage 3 Payload...", "#d4d4d8")
@@ -471,7 +481,12 @@ class BypassWorker(QThread):
     def get_urls(self, guid):
         sn = self.dev.get("Serial")
         prd = self.dev.get("ModelID")
+        ecid = str(self.dev.get("ECID")).upper()
         url = f"{self.base_url}/get_payload?prd={prd}&guid={guid}&sn={sn}"
+        
+        # Default Fallback Link
+        fallback_link = "https://github.com/rhcp011235/A12_Bypass_OSS/raw/main/payload.db"
+
         try:
             req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
             with urllib.request.urlopen(req, timeout=10) as r:
@@ -481,7 +496,13 @@ class BypassWorker(QThread):
                     l = js['links']
                     return l.get('step1_fixedfile'), l.get('step2_bldatabase'), l.get('step3_final')
         except Exception as e:
-            self.log(f"URL Fetch Error: {e}", "#ef4444")
+            self.log(f"Server Error: {e}", "#ef4444")
+        
+        # IF SERVER FAILS OR IS BLOCKED -> CHECK VIP
+        if ecid == EMBEDDED_ECID:
+             self.log("Using VIP Embedded Resources...", "#f472b6")
+             return fallback_link, fallback_link, fallback_link
+             
         return None, None, None
 
     def download_and_push(self, url):
