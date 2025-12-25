@@ -1,3 +1,4 @@
+
 export const pythonSourceCode = `import sys
 import os
 import time
@@ -29,7 +30,8 @@ except ImportError:
 
 # --- Configuration ---
 APP_NAME = "Xtr1a Activator"
-VERSION = "v1.0.3"
+VERSION = "v1.0.4"
+SERVER_URL = "https://aaronkotlin.pythonanywhere.com"
 
 # --- Modern Cyber-Clean Stylesheet ---
 STYLESHEET = """
@@ -206,7 +208,6 @@ class DeviceWorker(QThread):
     error_occurred = pyqtSignal(str)
 
     def run(self):
-        # Prefer direct module call for speed
         pmd3 = shutil.which("pymobiledevice3")
         commands = []
         if pmd3:
@@ -240,7 +241,6 @@ class DeviceWorker(QThread):
             self.error_occurred.emit(f"Failed to detect device. Ensure device is connected and unlocked.")
 
     def process_data(self, info):
-        # Handle ECID from integer or hex string
         ecid_raw = info.get("UniqueChipID", info.get("ECID", 0))
         ecid_hex = hex(ecid_raw).upper().replace("0X", "") if isinstance(ecid_raw, int) else str(ecid_raw)
 
@@ -256,7 +256,6 @@ class DeviceWorker(QThread):
             "Capacity": info.get("DeviceCapacity", "N/A")
         }
         
-        # Determine capacity readability if available
         if isinstance(clean["Capacity"], int):
             clean["Capacity"] = f"{clean['Capacity'] // 1073741824} GB"
 
@@ -272,7 +271,6 @@ class DeviceWorker(QThread):
                 k, v = line.split(": ", 1)
                 info[k.strip()] = v.strip()
                 
-        # Handle int conversion for ECID if text parsing
         if "UniqueChipID" in info:
             try:
                 info["UniqueChipID"] = int(info["UniqueChipID"])
@@ -283,17 +281,12 @@ class DeviceWorker(QThread):
 class BypassWorker(QThread):
     finished = pyqtSignal(bool, str)
     
-    def __init__(self, console_signal, device_info, base_url, use_auto_guid, manual_guid):
+    def __init__(self, console_signal, device_info, use_auto_guid, manual_guid):
         super().__init__()
         self.console = console_signal
         self.dev = device_info
-        
-        # Format URL: Ensure protocol
-        self.base_url = base_url.strip()
-        if not self.base_url.startswith("http"):
-            self.base_url = "https://" + self.base_url
-        self.base_url = self.base_url.rstrip("/")
-        
+        # Hardcoded Server URL
+        self.base_url = SERVER_URL
         self.auto_guid = use_auto_guid
         self.man_guid = manual_guid
 
@@ -312,7 +305,7 @@ class BypassWorker(QThread):
 
     def check_registration(self):
         ecid = self.dev.get("ECID")
-        self.log(f"Verifying ECID {ecid} with {self.base_url}...", "#d4d4d8")
+        self.log(f"Verifying ECID {ecid} with cloud...", "#d4d4d8")
         
         url = f"{self.base_url}/check_ecid?ecid={ecid}"
         
@@ -324,15 +317,14 @@ class BypassWorker(QThread):
                     self.log("Registration Verified: AUTHORIZED", "#4ade80")
                     return True
                 else:
-                    self.log(f"Server Validation Failed. Response: {data}", "#ef4444")
+                    self.log(f"Server Validation Failed.", "#ef4444")
                     self.log("Please register ECID on the website first.", "#fbbf24")
                     return False
         except urllib.error.HTTPError as e:
-             self.log(f"HTTP Error {e.code}: Check your server URL.", "#ef4444")
+             self.log(f"HTTP Error {e.code}: Check server status.", "#ef4444")
              return False
         except Exception as e:
             self.log(f"Connection failed: {e}", "#ef4444")
-            self.log("Could not reach server. Is the URL correct?", "#fbbf24")
             return False
 
     def run(self):
@@ -342,7 +334,6 @@ class BypassWorker(QThread):
             self.finished.emit(False, "ECID Registration Required")
             return
 
-        # Auto-Reboot Loop (Max 6 attempts)
         max_retries = 6
         guid = None
 
@@ -353,7 +344,7 @@ class BypassWorker(QThread):
                 guid = self.detect_guid_once()
                 
                 if guid:
-                    break # Found it!
+                    break
                 
                 if attempt < max_retries:
                     self.log(f"GUID not found. Rebooting device to trigger logs...", "#ef4444")
@@ -373,7 +364,6 @@ class BypassWorker(QThread):
             
         self.log(f"GUID Acquired: {guid}", "#4ade80")
         
-        # 2. Server Comms
         self.log("Requesting payload URLs...", "#d4d4d8")
         s1, s2, s3 = self.get_urls(guid)
         
@@ -382,7 +372,6 @@ class BypassWorker(QThread):
             self.finished.emit(False, "Server Error")
             return
             
-        # 3. Download & Push
         self.log("Downloading Stage 3 Payload...", "#d4d4d8")
         if self.download_and_push(s3):
             self.log("✅ Payload Successfully Deployed!", "#4ade80")
@@ -403,52 +392,39 @@ class BypassWorker(QThread):
 
     def wait_for_device(self):
         self.log("Waiting for device to reconnect (max 60s)...", "#d4d4d8")
-        # Optimized Wait: 60 seconds max, checking every second
         for i in range(60):
             time.sleep(1)
-            
-            # Use quick check command
             cmd = [sys.executable, "-m", "pymobiledevice3", "lockdown", "info"]
             try:
                 flags = subprocess.CREATE_NO_WINDOW if sys.platform == 'win32' else 0
                 r = subprocess.run(cmd, capture_output=True, creationflags=flags)
                 if r.returncode == 0:
                     self.log("Device Reconnected! Resuming scan...", "#4ade80")
-                    time.sleep(4) # Allow USB services to fully initialize
+                    time.sleep(4)
                     return
             except:
                 pass
-                
         self.log("Timeout waiting for device. Proceeding anyway...", "#facc15")
 
     def detect_guid_once(self):
         udid = self.dev.get("UDID")
         log_file = f"search_{udid}.logarchive"
-        
         if os.path.exists(log_file): shutil.rmtree(log_file)
-        
         cmd = [sys.executable, "-m", "pymobiledevice3", "syslog", "collect", log_file]
-        
         self.log("Collecting logs (45s)...", "#d4d4d8")
         self.run_cmd(cmd, timeout=45) 
-        
         trace = os.path.join(log_file, "logdata.LiveData.tracev3")
         if not os.path.exists(trace):
             return None
-            
         try:
             with open(trace, 'rb') as f:
                 content = f.read()
-            
             pattern = re.compile(rb'[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}', re.IGNORECASE)
             matches = pattern.findall(content)
-            
             from collections import Counter
             valid = [m.decode('ascii').upper() for m in matches if len(m.replace(b'0', b'').replace(b'-', b'')) > 5]
-            
             if not valid: return None
             return Counter(valid).most_common(1)[0][0]
-            
         except:
             return None
         finally:
@@ -458,8 +434,6 @@ class BypassWorker(QThread):
         sn = self.dev.get("Serial")
         prd = self.dev.get("ModelID")
         url = f"{self.base_url}/get_payload?prd={prd}&guid={guid}&sn={sn}"
-        
-        # Use curl or python urllib
         try:
             req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
             with urllib.request.urlopen(req, timeout=10) as r:
@@ -470,15 +444,12 @@ class BypassWorker(QThread):
                     return l.get('step1_fixedfile'), l.get('step2_bldatabase'), l.get('step3_final')
         except Exception as e:
             self.log(f"URL Fetch Error: {e}", "#ef4444")
-            
         return None, None, None
 
     def download_and_push(self, url):
         local = "payload.db"
         if os.path.exists(local): os.remove(local)
-        
         self.run_cmd(["curl", "-L", "-o", local, url])
-        
         try:
             conn = sqlite3.connect(local)
             cursor = conn.cursor()
@@ -489,14 +460,11 @@ class BypassWorker(QThread):
             conn.close()
         except:
             return False
-            
         target = "/Downloads/downloads.28.sqlitedb"
         self.log("Pushing payload...", "#d4d4d8")
         self.run_cmd([sys.executable, "-m", "pymobiledevice3", "afc", "rm", target])
         c, _, _ = self.run_cmd([sys.executable, "-m", "pymobiledevice3", "afc", "push", local, target])
         return c == 0
-
-# --- Main Window ---
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -506,7 +474,6 @@ class MainWindow(QMainWindow):
         self.device_info = {}
         self.console_signal = ConsoleSignal()
         self.console_signal.text_written.connect(self.log_msg)
-
         self.init_ui()
 
     def init_ui(self):
@@ -515,29 +482,24 @@ class MainWindow(QMainWindow):
         main_layout = QHBoxLayout(main_widget)
         main_layout.setContentsMargins(0,0,0,0)
         main_layout.setSpacing(0)
-
-        # Side Panel
         side_panel = QFrame()
         side_panel.setObjectName("SidePanel")
         side_panel.setFixedWidth(260)
         sp_layout = QVBoxLayout(side_panel)
         sp_layout.setContentsMargins(24, 40, 24, 24)
-        
         logo_lbl = QLabel(APP_NAME.split(' ')[0])
         logo_lbl.setObjectName("HeaderTitle")
         sp_layout.addWidget(logo_lbl)
-        
         ver_lbl = QLabel(VERSION)
         ver_lbl.setObjectName("VersionTag")
         ver_lbl.setFixedSize(100, 22)
         ver_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
         sp_layout.addWidget(ver_lbl)
-        
         sp_layout.addSpacing(50)
         
         self.nav_btns = []
-        icons = ["🖥️", "☁️", "📖"]
-        labels = ["Dashboard", "Server Config", "Guide & Info"]
+        icons = ["🖥️", "📖"]
+        labels = ["Dashboard", "Guide & Info"]
         
         for i, text in enumerate(labels):
             btn = QPushButton(f"{icons[i]}   {text}")
@@ -556,12 +518,9 @@ class MainWindow(QMainWindow):
             
         sp_layout.addStretch()
         main_layout.addWidget(side_panel)
-
-        # Content
         content_area = QWidget()
         ca_layout = QVBoxLayout(content_area)
         ca_layout.setContentsMargins(0,0,0,0)
-        
         header = QFrame()
         header.setObjectName("Header")
         header.setFixedHeight(70)
@@ -576,18 +535,14 @@ class MainWindow(QMainWindow):
         self.tabs.tabBar().hide()
         
         self.page_dash = QWidget()
-        self.page_server = QWidget()
         self.page_guide = QWidget()
         
         self.tabs.addTab(self.page_dash, "")
-        self.tabs.addTab(self.page_server, "")
         self.tabs.addTab(self.page_guide, "")
         
         ca_layout.addWidget(self.tabs)
         main_layout.addWidget(content_area)
-
         self.build_dashboard()
-        self.build_server_page()
         self.build_guide_page()
         self.nav_btns[0].click()
 
@@ -601,41 +556,29 @@ class MainWindow(QMainWindow):
         layout = QHBoxLayout(self.page_dash)
         layout.setContentsMargins(40, 40, 40, 40)
         layout.setSpacing(40)
-        
-        # Left Panel
         left_panel = QWidget()
         lp_layout = QVBoxLayout(left_panel)
         lp_layout.setContentsMargins(0,0,0,0)
         lp_layout.setSpacing(20)
-        left_panel.setFixedWidth(450) # Wider for details
-
-        # 1. Connection Header
+        left_panel.setFixedWidth(450)
         conn_box = QFrame()
         conn_box.setStyleSheet("background-color: #0c0c0e; border: 1px solid #27272a; border-radius: 8px;")
         conn_layout = QHBoxLayout(conn_box)
         conn_layout.setContentsMargins(16, 16, 16, 16)
-        
         self.status_lbl = QLabel("DISCONNECTED")
         self.status_lbl.setStyleSheet("color: #71717a; font-weight: 800; font-size: 16px;")
-        
         btn_check = QPushButton("CHECK DEVICE")
         btn_check.setObjectName("PrimaryButton")
         btn_check.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
         btn_check.clicked.connect(self.check_device)
-        
         conn_layout.addWidget(self.status_lbl)
         conn_layout.addStretch()
         conn_layout.addWidget(btn_check)
-
-        # 2. Detailed Info Grid
         dev_box = QGroupBox("DEVICE IDENTITY")
-        # Use GridLayout for spacious display
         grid = QGridLayout()
         grid.setContentsMargins(16, 24, 16, 16)
         grid.setVerticalSpacing(20)
         grid.setHorizontalSpacing(24)
-
-        # Helper to make label/value pairs
         def mk_field(row, col, title, obj_name, colspan=1):
             lbl = QLabel(title)
             lbl.setObjectName("DetailLabel")
@@ -644,120 +587,58 @@ class MainWindow(QMainWindow):
             grid.addWidget(lbl, row*2, col, 1, colspan)
             grid.addWidget(val, row*2+1, col, 1, colspan)
             setattr(self, obj_name, val)
-
-        # Row 0: Model | iOS
         mk_field(0, 0, "MODEL NAME", "val_model")
         mk_field(0, 1, "IOS VERSION", "val_ios")
-        
-        # Row 1: Model ID | Serial
         mk_field(1, 0, "MODEL IDENTIFIER", "val_modelid")
         mk_field(1, 1, "SERIAL NUMBER", "val_serial")
-
-        # Row 2: IMEI | Activation
         mk_field(2, 0, "IMEI", "val_imei")
         mk_field(2, 1, "ACTIVATION STATE", "val_act")
-
-        # Row 3: Storage (Reduced items)
         mk_field(3, 0, "STORAGE CAPACITY", "val_storage", 2)
-        
-        # Row 4: ECID (Full with Copy)
         lbl_ecid = QLabel("ECID (UNIQUE CHIP ID)")
         lbl_ecid.setObjectName("DetailLabel")
         grid.addWidget(lbl_ecid, 8, 0, 1, 2)
-        
         ecid_layout = QHBoxLayout()
         self.val_ecid = QLineEdit()
         self.val_ecid.setReadOnly(True)
         self.val_ecid.setText("-")
         self.val_ecid.setStyleSheet("background: transparent; border: none; border-bottom: 1px solid #27272a; color: #e4e4e7; font-family: 'Consolas'; padding: 0; padding-bottom: 4px;")
-        
         btn_copy = QPushButton("COPY")
         btn_copy.setObjectName("SmallBtn")
         btn_copy.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
         btn_copy.setFixedWidth(60)
         btn_copy.clicked.connect(self.copy_ecid)
-        
         ecid_layout.addWidget(self.val_ecid)
         ecid_layout.addWidget(btn_copy)
-        
-        # Add layout to grid at Row 4 index (8/9)
         grid.addLayout(ecid_layout, 9, 0, 1, 2)
-
         dev_box.setLayout(grid)
-
-        # 3. Action
         self.btn_bypass = QPushButton("INITIATE BYPASS SEQUENCE")
         self.btn_bypass.setObjectName("PrimaryButton")
         self.btn_bypass.setFixedHeight(56)
         self.btn_bypass.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
         self.btn_bypass.clicked.connect(self.start_bypass)
-
         lp_layout.addWidget(conn_box)
         lp_layout.addWidget(dev_box)
         lp_layout.addStretch()
         lp_layout.addWidget(self.btn_bypass)
-
-        # Right Panel
         right_panel = QWidget()
         rp_layout = QVBoxLayout(right_panel)
         rp_layout.setContentsMargins(0,0,0,0)
-        
         lbl_con = QLabel("SYSTEM TERMINAL")
         lbl_con.setObjectName("SectionTitle")
-        
         self.console = QTextEdit()
         self.console.setReadOnly(True)
-        
         rp_layout.addWidget(lbl_con)
         rp_layout.addWidget(self.console)
-        
         layout.addWidget(left_panel)
         layout.addWidget(right_panel)
-
-    def build_server_page(self):
-        layout = QVBoxLayout(self.page_server)
-        layout.setContentsMargins(60, 60, 60, 60)
-        layout.setAlignment(Qt.AlignmentFlag.AlignTop)
-        
-        box = QGroupBox("REMOTE SERVER CONFIGURATION")
-        bl = QVBoxLayout()
-        bl.setContentsMargins(30, 30, 30, 30)
-        bl.setSpacing(20)
-        
-        lbl_desc = QLabel("Enter your PythonAnywhere or Custom Server URL below. The tool will check ECID registration against this server.")
-        lbl_desc.setStyleSheet("color: #a1a1aa; margin-bottom: 10px;")
-        lbl_desc.setWordWrap(True)
-        
-        lbl_ip = QLabel("SERVER DOMAIN / URL")
-        lbl_ip.setObjectName("SectionTitle")
-        self.inp_domain = QLineEdit()
-        self.inp_domain.setPlaceholderText("https://yourusername.pythonanywhere.com")
-        self.inp_domain.setText("https://xtr1a.pythonanywhere.com") # Default placeholder
-        
-        bl.addWidget(lbl_desc)
-        bl.addWidget(lbl_ip)
-        bl.addWidget(self.inp_domain)
-        bl.addStretch()
-        
-        box.setLayout(bl)
-        layout.addWidget(box)
 
     def build_guide_page(self):
         layout = QVBoxLayout(self.page_guide)
         layout.setContentsMargins(40, 40, 40, 40)
         txt = QTextEdit()
         txt.setReadOnly(True)
-        txt.setHtml("""
-        <h3>INSTRUCTIONS</h3>
-        <p>1. Connect Device & Click Check.</p>
-        <p>2. Copy the ECID and Register it on the website (using the Server Code).</p>
-        <p>3. Enter your Server URL in the 'Server Config' tab.</p>
-        <p>4. Ensure Device is on same WiFi as this PC.</p>
-        <p>5. Click Initiate Bypass. The tool will auto-reboot the device up to 6 times to catch the activation logs.</p>
-        """)
+        txt.setHtml("<h3>INSTRUCTIONS</h3><p>1. Connect Device & Click Check.</p><p>2. Copy the ECID and Register it via the Web Dashboard.</p><p>3. Click Initiate Bypass.</p>")
         layout.addWidget(txt)
-
-    # --- Logic ---
 
     def log_msg(self, msg, color):
         self.console.append(f"<span style='color:{color}'>{msg}</span>")
@@ -767,7 +648,6 @@ class MainWindow(QMainWindow):
     def check_device(self):
         self.status_lbl.setText("CONNECTING...")
         self.status_lbl.setStyleSheet("color: #fbbf24; font-weight: 800; font-size: 16px;")
-        
         self.worker = DeviceWorker()
         self.worker.info_ready.connect(self.on_dev_found)
         self.worker.error_occurred.connect(self.on_dev_err)
@@ -783,10 +663,8 @@ class MainWindow(QMainWindow):
         self.val_act.setText(info['Activation'])
         self.val_ecid.setText(str(info['ECID']))
         self.val_storage.setText(info['Capacity'])
-
         color = "#4ade80" if "Activated" in info['Activation'] else "#f87171"
         self.val_act.setStyleSheet(f"color: {color}; font-family: 'Consolas'; font-weight: bold; border-bottom: 1px solid #27272a;")
-
         self.status_lbl.setText("CONNECTED")
         self.status_lbl.setStyleSheet("color: #4ade80; font-weight: 800; font-size: 16px;")
         self.log_msg(f"Connected: {info['ModelName']}", "#4ade80")
@@ -807,31 +685,12 @@ class MainWindow(QMainWindow):
         if not self.device_info.get("UDID"):
             QMessageBox.warning(self, "Error", "Check device first.")
             return
-
-        # Prompt Wifi
-        msg = QMessageBox()
-        msg.setIcon(QMessageBox.Icon.Warning)
-        msg.setText("Important Pre-Check")
-        msg.setInformativeText("Ensure the iDevice is connected to the SAME Wi-Fi network as this computer before proceeding.\\n\\nThe device must be registered via ECID.")
-        msg.setStandardButtons(QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
-        if msg.exec() != QMessageBox.StandardButton.Ok:
-            return
-
-        url = self.inp_domain.text().strip()
-        if not url:
-            QMessageBox.critical(self, "Error", "Please configure Server URL in the 'Server Config' tab.")
-            return
-
+        
         self.btn_bypass.setEnabled(False)
         self.console.clear()
         
-        self.bp_worker = BypassWorker(
-            self.console_signal,
-            self.device_info,
-            url,
-            True, # Always auto guid now
-            ""
-        )
+        # Hardcoded True for auto_guid, empty string for manual
+        self.bp_worker = BypassWorker(self.console_signal, self.device_info, True, "")
         self.bp_worker.finished.connect(self.on_bp_finish)
         self.bp_worker.start()
 
