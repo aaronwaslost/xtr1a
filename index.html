@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,6 +13,9 @@
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     
+    <!-- JSZip for Archiving -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
@@ -32,6 +36,26 @@
               cyan: {
                 450: '#00d4ff',
               }
+            },
+            animation: {
+                'gradient': 'gradient 8s linear infinite',
+                'pulse-glow': 'pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            },
+            keyframes: {
+                gradient: {
+                    '0%, 100%': {
+                        'background-size': '200% 200%',
+                        'background-position': 'left center'
+                    },
+                    '50%': {
+                        'background-size': '200% 200%',
+                        'background-position': 'right center'
+                    },
+                },
+                'pulse-glow': {
+                    '0%, 100%': { opacity: 1 },
+                    '50%': { opacity: .5 }
+                }
             }
           }
         }
@@ -41,6 +65,9 @@
       body {
         background-color: #050505;
         color: #e2e8f0;
+        background-image: 
+            radial-gradient(circle at 50% 0%, rgba(6,182,212,0.15), transparent 70%),
+            radial-gradient(circle at 80% 50%, rgba(124, 58, 237, 0.1), transparent 50%);
       }
       /* Custom Scrollbar */
       ::-webkit-scrollbar {
@@ -63,6 +90,7 @@
       .active-nav {
           color: #00d4ff; /* cyan-400 */
           border-bottom: 2px solid #00d4ff;
+          text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
       }
       .inactive-nav {
           color: #9ca3af; /* gray-400 */
@@ -70,6 +98,13 @@
       }
       .inactive-nav:hover {
           color: white;
+      }
+      
+      .glass-card {
+          background: rgba(17, 24, 39, 0.6);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+          border: 1px solid rgba(255, 255, 255, 0.05);
       }
     </style>
 <script type="importmap">
@@ -85,23 +120,23 @@
 <body class="selection:bg-cyan-500/30 overflow-x-hidden min-h-screen flex flex-col">
 
     <!-- Navbar -->
-    <nav class="border-b border-gray-800 bg-black/50 backdrop-blur-md sticky top-0 z-50">
+    <nav class="border-b border-white/5 bg-black/50 backdrop-blur-md sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded bg-gradient-to-br from-cyan-600 to-blue-700 flex items-center justify-center shadow-lg shadow-cyan-900/20">
-                    <i data-lucide="shield" class="text-white w-5 h-5"></i>
+            <div class="flex items-center gap-3 group cursor-default">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-600 to-violet-600 flex items-center justify-center shadow-lg shadow-cyan-900/20 group-hover:shadow-cyan-500/20 transition-all duration-300">
+                    <i data-lucide="shield-lightning" class="text-white w-6 h-6"></i>
                 </div>
-                <span class="text-xl font-bold tracking-tight text-white">
-                    Xtr1a<span class="text-cyan-500">_Activator</span>
+                <span class="text-xl font-bold tracking-tight text-white group-hover:text-cyan-400 transition-colors">
+                    Xtr1a<span class="text-cyan-500 group-hover:text-white">_Activator</span>
                 </span>
             </div>
             
             <div class="flex gap-8 h-full">
-                <button onclick="switchTab('download')" id="nav-download" class="text-sm font-medium transition-all h-full active-nav px-2">Download Tool</button>
-                <button onclick="switchTab('register')" id="nav-register" class="text-sm font-medium transition-all h-full inactive-nav px-2">Register Device</button>
-                <div class="flex items-center">
-                    <a href="https://github.com/rhcp011235/A12_Bypass_OSS" target="_blank" class="flex items-center gap-2 text-sm font-medium text-gray-400 hover:text-white transition-colors">
-                        <i data-lucide="github" class="w-4 h-4"></i>
+                <button onclick="switchTab('download')" id="nav-download" class="text-sm font-medium transition-all h-full active-nav px-2">Software</button>
+                <button onclick="switchTab('register')" id="nav-register" class="text-sm font-medium transition-all h-full inactive-nav px-2">Cloud Register</button>
+                <div class="flex items-center pl-4 border-l border-white/10 ml-2">
+                    <a href="https://github.com/aaronwaslost/xtr1a" target="_blank" class="flex items-center gap-2 text-sm font-medium text-gray-400 hover:text-white transition-colors">
+                        <i data-lucide="github" class="w-5 h-5"></i>
                     </a>
                 </div>
             </div>
@@ -112,64 +147,81 @@
         
         <!-- DOWNLOAD TAB -->
         <div id="tab-download" class="block">
-            <section class="pt-24 pb-12 px-6 text-center max-w-4xl mx-auto">
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-900/20 border border-cyan-800 text-cyan-400 text-xs font-bold uppercase tracking-wider mb-6">
-                    <i data-lucide="zap" class="w-3 h-3"></i>
-                    <span>v1.0.4 Release</span>
+            <section class="pt-24 pb-12 px-6 text-center max-w-5xl mx-auto relative z-10">
+                
+                <!-- Badge -->
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-cyan-950/30 border border-cyan-500/30 text-cyan-400 text-xs font-bold uppercase tracking-wider mb-8 shadow-[0_0_20px_-5px_rgba(6,182,212,0.3)]">
+                    <span class="relative flex h-2 w-2">
+                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                      <span class="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
+                    </span>
+                    <span>v2.0 Release Candidate</span>
                 </div>
                 
-                <h1 class="text-5xl md:text-7xl font-bold text-white mb-6 tracking-tight">
-                    Professional <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600">iOS Utility</span>
+                <h1 class="text-5xl md:text-7xl font-bold text-white mb-6 tracking-tight leading-tight">
+                    Unlock the Full Potential of <br/>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 animate-gradient">Your iOS Device</span>
                 </h1>
                 
-                <p class="text-lg text-gray-400 mb-10 max-w-2xl mx-auto leading-relaxed">
-                    A powerful PyQt6 GUI tool for iOS customization and activation bypass. 
-                    Optimized for secure device whitelisting and automated exploit chains.
-                    <br />
-                    <span class="text-sm text-gray-500 mt-2 block">Compatible with Windows, macOS, and Linux.</span>
+                <p class="text-lg text-gray-400 mb-12 max-w-2xl mx-auto leading-relaxed">
+                    The ultimate native utility for iOS device management and activation. 
+                    Featuring a <span class="text-cyan-400">Qt-style Dark Interface</span>, multi-mirror payload delivery, and enterprise-grade reliability.
                 </p>
 
-                <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-                    <button onclick="downloadPython()" class="group relative px-8 py-4 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl font-bold transition-all shadow-[0_0_40px_-10px_rgba(6,182,212,0.5)] hover:shadow-[0_0_60px_-10px_rgba(6,182,212,0.6)] flex items-center gap-3">
-                        <i data-lucide="download" class="w-5 h-5"></i>
-                        <span>Download .py Source</span>
-                        <div class="absolute inset-0 rounded-xl ring-2 ring-white/20 group-hover:ring-white/40 transition-all"></div>
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-6">
+                    <button onclick="downloadLatestExe()" class="group relative px-8 py-5 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white rounded-2xl font-bold transition-all shadow-[0_10px_40px_-10px_rgba(6,182,212,0.5)] hover:shadow-[0_20px_60px_-10px_rgba(6,182,212,0.6)] hover:-translate-y-1 flex items-center gap-4 w-full sm:w-auto justify-center">
+                        <i data-lucide="download-cloud" class="w-6 h-6"></i>
+                        <div class="text-left">
+                            <div class="text-xs font-medium opacity-80">Download for Windows</div>
+                            <div class="text-lg leading-none">Xtr1a_Activator.exe</div>
+                        </div>
+                        <div class="absolute inset-0 rounded-2xl ring-2 ring-white/20 group-hover:ring-white/40 transition-all pointer-events-none"></div>
                     </button>
                     
-                    <button onclick="copyPython()" id="btn-copy-py" class="px-8 py-4 bg-gray-900 hover:bg-gray-800 text-gray-300 border border-gray-700 hover:border-gray-600 rounded-xl font-bold transition-all flex items-center gap-3">
-                        <i data-lucide="file-code" class="w-5 h-5" id="icon-copy-py"></i>
-                        <span id="text-copy-py">Copy Source</span>
+                    <button onclick="downloadVSProject()" class="px-8 py-5 glass-card hover:bg-white/5 text-gray-300 border border-white/10 hover:border-cyan-500/50 rounded-2xl font-bold transition-all flex items-center gap-3 w-full sm:w-auto justify-center group">
+                        <i data-lucide="code-2" class="w-5 h-5 text-gray-500 group-hover:text-cyan-400 transition-colors"></i>
+                        <span>Source Code (C++)</span>
                     </button>
                 </div>
+
+                <div class="mt-8 text-xs text-gray-600 font-mono">
+                    SHA-256 Verified • Secure Download • No Python Required
+                </div>
+
             </section>
 
             <section class="py-20 px-6 max-w-7xl mx-auto">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="p-6 rounded-2xl bg-gray-900/50 border border-gray-800 backdrop-blur-sm">
-                        <div class="w-12 h-12 bg-blue-900/30 rounded-lg flex items-center justify-center mb-4">
-                            <i data-lucide="cpu" class="text-blue-400 w-6 h-6"></i>
+                    <div class="p-8 rounded-3xl glass-card relative overflow-hidden group hover:bg-white/5 transition-all">
+                        <div class="absolute -right-10 -top-10 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl group-hover:bg-blue-500/20 transition-all"></div>
+                        <div class="w-14 h-14 bg-gradient-to-br from-blue-900/50 to-blue-800/20 rounded-2xl flex items-center justify-center mb-6 border border-blue-500/20">
+                            <i data-lucide="wand-2" class="text-blue-400 w-7 h-7"></i>
                         </div>
-                        <h3 class="text-xl font-bold text-white mb-2">Smart Detection</h3>
-                        <p class="text-gray-400 text-sm">
-                            Automatically locates required USB communication binaries via pymobiledevice3.
+                        <h3 class="text-xl font-bold text-white mb-3">Native Performance</h3>
+                        <p class="text-gray-400 text-sm leading-relaxed">
+                            Rewritten in native C++ for zero-dependency execution. No Python installation required.
                         </p>
                     </div>
-                    <div class="p-6 rounded-2xl bg-gray-900/50 border border-gray-800 backdrop-blur-sm">
-                        <div class="w-12 h-12 bg-cyan-900/30 rounded-lg flex items-center justify-center mb-4">
-                            <i data-lucide="lock" class="text-cyan-400 w-6 h-6"></i>
+
+                    <div class="p-8 rounded-3xl glass-card relative overflow-hidden group hover:bg-white/5 transition-all">
+                        <div class="absolute -right-10 -top-10 w-32 h-32 bg-cyan-500/10 rounded-full blur-2xl group-hover:bg-cyan-500/20 transition-all"></div>
+                        <div class="w-14 h-14 bg-gradient-to-br from-cyan-900/50 to-cyan-800/20 rounded-2xl flex items-center justify-center mb-6 border border-cyan-500/20">
+                            <i data-lucide="palette" class="text-cyan-400 w-7 h-7"></i>
                         </div>
-                        <h3 class="text-xl font-bold text-white mb-2">Cloud Auth</h3>
-                        <p class="text-gray-400 text-sm">
-                            Seamlessly integrated with the official Xtr1a backend server.
+                        <h3 class="text-xl font-bold text-white mb-3">Qt-Style Theme</h3>
+                        <p class="text-gray-400 text-sm leading-relaxed">
+                            Beautiful dark mode interface inspired by modern Qt Fusion styling.
                         </p>
                     </div>
-                    <div class="p-6 rounded-2xl bg-gray-900/50 border border-gray-800 backdrop-blur-sm">
-                        <div class="w-12 h-12 bg-purple-900/30 rounded-lg flex items-center justify-center mb-4">
-                            <i data-lucide="terminal" class="text-purple-400 w-6 h-6"></i>
+
+                    <div class="p-8 rounded-3xl glass-card relative overflow-hidden group hover:bg-white/5 transition-all">
+                        <div class="absolute -right-10 -top-10 w-32 h-32 bg-purple-500/10 rounded-full blur-2xl group-hover:bg-purple-500/20 transition-all"></div>
+                        <div class="w-14 h-14 bg-gradient-to-br from-purple-900/50 to-purple-800/20 rounded-2xl flex items-center justify-center mb-6 border border-purple-500/20">
+                            <i data-lucide="database-zap" class="text-purple-400 w-7 h-7"></i>
                         </div>
-                        <h3 class="text-xl font-bold text-white mb-2">One-Click Bypass</h3>
-                        <p class="text-gray-400 text-sm">
-                            Intelligent loop retries device connection to capture activation tickets.
+                        <h3 class="text-xl font-bold text-white mb-3">Payload Engine v2</h3>
+                        <p class="text-gray-400 text-sm leading-relaxed">
+                            Smart payload delivery with automatic mirror switching to prevent download failures.
                         </p>
                     </div>
                 </div>
@@ -179,39 +231,48 @@
         <!-- REGISTER DEVICE TAB -->
         <div id="tab-register" class="hidden-tab">
             <section class="pt-24 pb-12 px-6 text-center max-w-2xl mx-auto min-h-[60vh]">
-                <div class="bg-gray-900/50 border border-gray-800 rounded-2xl p-10 backdrop-blur-xl">
-                    <div class="w-16 h-16 bg-cyan-900/20 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                        <i data-lucide="smartphone" class="text-cyan-400 w-8 h-8"></i>
+                <div class="glass-card rounded-3xl p-10 relative overflow-hidden">
+                     <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-500 to-purple-600"></div>
+                     
+                    <div class="w-20 h-20 bg-cyan-900/20 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-inner shadow-cyan-500/10">
+                        <i data-lucide="fingerprint" class="text-cyan-400 w-10 h-10"></i>
                     </div>
                     
-                    <h2 class="text-3xl font-bold text-white mb-2">Register Device</h2>
-                    <p class="text-gray-400 mb-8">
-                        Whitelist your ECID to authorize activation on the server.
+                    <h2 class="text-3xl font-bold text-white mb-3">Device Authentication</h2>
+                    <p class="text-gray-400 mb-10">
+                        Register your ECID to grant server-side access for activation tickets.
                     </p>
 
                     <form id="form-register" class="space-y-6">
                         
-                        <div class="space-y-1 text-left">
-                            <label class="text-xs font-bold text-gray-500 uppercase ml-1">Device ECID (Hex)</label>
-                            <input 
-                                type="text" 
-                                id="inp-ecid"
-                                placeholder="Enter Hex ECID"
-                                class="w-full bg-black/50 border border-gray-700 rounded-lg px-4 py-4 text-white font-mono text-center focus:outline-none focus:border-cyan-500 transition-colors"
-                            />
+                        <div class="space-y-2 text-left">
+                            <label class="text-xs font-bold text-gray-500 uppercase ml-1 flex justify-between">
+                                <span>Device ECID (Hex)</span>
+                                <span class="text-cyan-600 cursor-pointer hover:text-cyan-400">Where do I find this?</span>
+                            </label>
+                            <div class="relative">
+                                <i data-lucide="cpu" class="absolute left-4 top-4 text-gray-600 w-5 h-5"></i>
+                                <input 
+                                    type="text" 
+                                    id="inp-ecid"
+                                    placeholder="0000028200..."
+                                    class="w-full bg-black/40 border border-gray-700 rounded-xl pl-12 pr-4 py-4 text-white font-mono placeholder:text-gray-700 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all"
+                                />
+                            </div>
                         </div>
                         
                         <button 
                             type="submit"
                             id="btn-register"
-                            class="w-full font-bold py-4 rounded-lg transition-all shadow-lg shadow-cyan-900/20 bg-cyan-600 hover:bg-cyan-500 text-white flex items-center justify-center gap-2"
+                            class="w-full font-bold py-4 rounded-xl transition-all shadow-lg shadow-cyan-900/20 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white flex items-center justify-center gap-2 group"
                         >
-                            <span id="btn-reg-text">Register ECID</span>
+                            <span id="btn-reg-text">Register Device ID</span>
+                            <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
                         </button>
                     </form>
 
                     <!-- Status Container -->
-                    <div id="status-container" class="hidden mt-8 p-6 rounded-xl flex flex-col items-center justify-center gap-3 animate-in fade-in zoom-in-95 duration-300">
+                    <div id="status-container" class="hidden mt-8 p-6 rounded-2xl flex flex-col items-center justify-center gap-3 animate-in fade-in zoom-in-95 duration-300">
                         <div id="status-icon-bg" class="p-3 rounded-full">
                            <i id="status-icon" data-lucide="check-circle" class="w-8 h-8"></i>
                         </div>
@@ -225,18 +286,452 @@
 
     </main>
 
-    <footer class="py-8 text-center text-gray-600 text-sm border-t border-gray-900/50 mt-12">
-        <div class="flex items-center justify-center gap-2 mb-2">
-            <i data-lucide="alert-triangle" class="w-3 h-3"></i>
-            <span>Educational Purposes Only</span>
+    <footer class="py-12 text-center text-gray-600 text-sm border-t border-white/5 mt-12 bg-black/40">
+        <div class="flex items-center justify-center gap-2 mb-4">
+            <i data-lucide="shield-alert" class="w-4 h-4 text-yellow-600"></i>
+            <span class="text-gray-500">For Educational & Research Purposes Only</span>
         </div>
-        <p>&copy; 2025 Xtr1a Tools. Not affiliated with Apple Inc.</p>
+        <p>&copy; 2025 Xtr1a Team. Not affiliated with Apple Inc.</p>
     </footer>
 
     <!-- JS LOGIC -->
     <script>
         // --- INIT ---
         lucide.createIcons();
+
+        // --- VS PROJECT FILES DATA ---
+        const VS_PROJECT_FILES = {
+            sln: `Microsoft Visual Studio Solution File, Format Version 12.00\n# Visual Studio Version 17\nVisualStudioVersion = 17.0.31903.59\nMinimumVisualStudioVersion = 10.0.40219.1\nProject("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Xtr1a_Activator", "Xtr1a_Activator.vcxproj", "{B12702AD-ABFB-443A-A1CE-F8C488C95183}"\nEndProject\nGlobal\n\tGlobalSection(SolutionConfigurationPlatforms) = preSolution\n\t\tDebug|x64 = Debug|x64\n\t\tDebug|x86 = Debug|x86\n\t\tRelease|x64 = Release|x64\n\t\tRelease|x86 = Release|x86\n\tEndGlobalSection\n\tGlobalSection(ProjectConfigurationPlatforms) = postSolution\n\t\t{B12702AD-ABFB-443A-A1CE-F8C488C95183}.Debug|x64.ActiveCfg = Debug|x64\n\t\t{B12702AD-ABFB-443A-A1CE-F8C488C95183}.Debug|x64.Build.0 = Debug|x64\n\t\t{B12702AD-ABFB-443A-A1CE-F8C488C95183}.Debug|x86.ActiveCfg = Debug|Win32\n\t\t{B12702AD-ABFB-443A-A1CE-F8C488C95183}.Debug|x86.Build.0 = Debug|Win32\n\t\t{B12702AD-ABFB-443A-A1CE-F8C488C95183}.Release|x64.ActiveCfg = Release|x64\n\t\t{B12702AD-ABFB-443A-A1CE-F8C488C95183}.Release|x64.Build.0 = Release|x64\n\t\t{B12702AD-ABFB-443A-A1CE-F8C488C95183}.Release|x86.ActiveCfg = Release|Win32\n\t\t{B12702AD-ABFB-443A-A1CE-F8C488C95183}.Release|x86.Build.0 = Release|Win32\n\tEndGlobalSection\n\tGlobalSection(SolutionProperties) = preSolution\n\t\tHideSolutionNode = FALSE\n\tEndGlobalSection\nEndGlobal`,
+            vcxproj: `<?xml version="1.0" encoding="utf-8"?>\n<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">\n  <ItemGroup Label="ProjectConfigurations">\n    <ProjectConfiguration Include="Debug|Win32">\n      <Configuration>Debug</Configuration>\n      <Platform>Win32</Platform>\n    </ProjectConfiguration>\n    <ProjectConfiguration Include="Release|Win32">\n      <Configuration>Release</Configuration>\n      <Platform>Win32</Platform>\n    </ProjectConfiguration>\n    <ProjectConfiguration Include="Debug|x64">\n      <Configuration>Debug</Configuration>\n      <Platform>x64</Platform>\n    </ProjectConfiguration>\n    <ProjectConfiguration Include="Release|x64">\n      <Configuration>Release</Configuration>\n      <Platform>x64</Platform>\n    </ProjectConfiguration>\n  </ItemGroup>\n  <PropertyGroup Label="Globals">\n    <VCProjectVersion>16.0</VCProjectVersion>\n    <Keyword>Win32Proj</Keyword>\n    <ProjectGuid>{B12702AD-ABFB-443A-A1CE-F8C488C95183}</ProjectGuid>\n    <RootNamespace>Xtr1a_Activator</RootNamespace>\n    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>\n  </PropertyGroup>\n  <Import Project="$(VCTargetsPath)\\Microsoft.Cpp.Default.props" />\n  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">\n    <ConfigurationType>Application</ConfigurationType>\n    <UseDebugLibraries>true</UseDebugLibraries>\n    <PlatformToolset>v143</PlatformToolset>\n    <CharacterSet>Unicode</CharacterSet>\n  </PropertyGroup>\n  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">\n    <ConfigurationType>Application</ConfigurationType>\n    <UseDebugLibraries>false</UseDebugLibraries>\n    <PlatformToolset>v143</PlatformToolset>\n    <WholeProgramOptimization>true</WholeProgramOptimization>\n    <CharacterSet>Unicode</CharacterSet>\n  </PropertyGroup>\n  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">\n    <ConfigurationType>Application</ConfigurationType>\n    <UseDebugLibraries>true</UseDebugLibraries>\n    <PlatformToolset>v143</PlatformToolset>\n    <CharacterSet>Unicode</CharacterSet>\n  </PropertyGroup>\n  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">\n    <ConfigurationType>Application</ConfigurationType>\n    <UseDebugLibraries>false</UseDebugLibraries>\n    <PlatformToolset>v143</PlatformToolset>\n    <WholeProgramOptimization>true</WholeProgramOptimization>\n    <CharacterSet>Unicode</CharacterSet>\n  </PropertyGroup>\n  <Import Project="$(VCTargetsPath)\\Microsoft.Cpp.props" />\n  <ImportGroup Label="ExtensionSettings">\n  </ImportGroup>\n  <ImportGroup Label="Shared">\n  </ImportGroup>\n  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">\n    <Import Project="$(UserRootDir)\\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />\n  </ImportGroup>\n  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">\n    <Import Project="$(UserRootDir)\\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />\n  </ImportGroup>\n  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">\n    <Import Project="$(UserRootDir)\\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />\n  </ImportGroup>\n  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">\n    <Import Project="$(UserRootDir)\\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />\n  </ImportGroup>\n  <PropertyGroup Label="UserMacros" />\n  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">\n    <LinkIncremental>true</LinkIncremental>\n  </PropertyGroup>\n  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">\n    <LinkIncremental>false</LinkIncremental>\n  </PropertyGroup>\n  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">\n    <LinkIncremental>true</LinkIncremental>\n  </PropertyGroup>\n  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">\n    <LinkIncremental>false</LinkIncremental>\n  </PropertyGroup>\n  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">\n    <ClCompile>\n      <WarningLevel>Level3</WarningLevel>\n      <SDLCheck>true</SDLCheck>\n      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>\n      <ConformanceMode>true</ConformanceMode>\n      <PrecompiledHeader>NotUsing</PrecompiledHeader>\n    </ClCompile>\n    <Link>\n      <SubSystem>Windows</SubSystem>\n      <GenerateDebugInformation>true</GenerateDebugInformation>\n      <AdditionalDependencies>comctl32.lib;wininet.lib;urlmon.lib;shell32.lib;user32.lib;advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>\n    </Link>\n  </ItemDefinitionGroup>\n  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">\n    <ClCompile>\n      <WarningLevel>Level3</WarningLevel>\n      <FunctionLevelLinking>true</FunctionLevelLinking>\n      <IntrinsicFunctions>true</IntrinsicFunctions>\n      <SDLCheck>true</SDLCheck>\n      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>\n      <ConformanceMode>true</ConformanceMode>\n      <PrecompiledHeader>NotUsing</PrecompiledHeader>\n    </ClCompile>\n    <Link>\n      <SubSystem>Windows</SubSystem>\n      <EnableCOMDATFolding>true</EnableCOMDATFolding>\n      <OptimizeReferences>true</OptimizeReferences>\n      <GenerateDebugInformation>true</GenerateDebugInformation>\n      <AdditionalDependencies>comctl32.lib;wininet.lib;urlmon.lib;shell32.lib;user32.lib;advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>\n    </Link>\n  </ItemDefinitionGroup>\n  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">\n    <ClCompile>\n      <WarningLevel>Level3</WarningLevel>\n      <SDLCheck>true</SDLCheck>\n      <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>\n      <ConformanceMode>true</ConformanceMode>\n      <PrecompiledHeader>NotUsing</PrecompiledHeader>\n    </ClCompile>\n    <Link>\n      <SubSystem>Windows</SubSystem>\n      <GenerateDebugInformation>true</GenerateDebugInformation>\n      <AdditionalDependencies>comctl32.lib;wininet.lib;urlmon.lib;shell32.lib;user32.lib;advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>\n    </Link>\n  </ItemDefinitionGroup>\n  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">\n    <ClCompile>\n      <WarningLevel>Level3</WarningLevel>\n      <FunctionLevelLinking>true</FunctionLevelLinking>\n      <IntrinsicFunctions>true</IntrinsicFunctions>\n      <SDLCheck>true</SDLCheck>\n      <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>\n      <ConformanceMode>true</ConformanceMode>\n      <PrecompiledHeader>NotUsing</PrecompiledHeader>\n    </ClCompile>\n    <Link>\n      <SubSystem>Windows</SubSystem>\n      <EnableCOMDATFolding>true</EnableCOMDATFolding>\n      <OptimizeReferences>true</OptimizeReferences>\n      <GenerateDebugInformation>true</GenerateDebugInformation>\n      <AdditionalDependencies>comctl32.lib;wininet.lib;urlmon.lib;shell32.lib;user32.lib;advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>\n    </Link>\n  </ItemDefinitionGroup>\n  <ItemGroup>\n    <ClCompile Include="Xtr1a_Activator.cpp" />\n  </ItemGroup>\n  <ItemGroup>\n    <ClInclude Include="resource.h" />\n  </ItemGroup>\n  <ItemGroup>\n    <ResourceCompile Include="Xtr1a_Activator.rc" />\n  </ItemGroup>\n  <Import Project="$(VCTargetsPath)\\Microsoft.Cpp.targets" />\n  <ImportGroup Label="ExtensionTargets">\n  </ImportGroup>\n</Project>`,
+            filters: `<?xml version="1.0" encoding="utf-8"?>\n<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">\n  <ItemGroup>\n    <Filter Include="Source Files">\n      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>\n      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>\n    </Filter>\n    <Filter Include="Header Files">\n      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>\n      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>\n    </Filter>\n    <Filter Include="Resource Files">\n      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>\n      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>\n    </Filter>\n  </ItemGroup>\n  <ItemGroup>\n    <ClCompile Include="Xtr1a_Activator.cpp">\n      <Filter>Source Files</Filter>\n    </ClCompile>\n  </ItemGroup>\n  <ItemGroup>\n    <ClInclude Include="resource.h">\n      <Filter>Header Files</Filter>\n    </ClInclude>\n  </ItemGroup>\n  <ItemGroup>\n    <ResourceCompile Include="Xtr1a_Activator.rc">\n      <Filter>Resource Files</Filter>\n    </ResourceCompile>\n  </ItemGroup>\n</Project>`,
+            cpp: `/* ==================================================================================\n   IMPORTANT: COPY-PASTE INSTRUCTIONS\n   =================================================================================\n   1. SELECT and COPY ONLY the code between the "START OF C++ CODE" and "END OF C++ CODE" markers below.\n   2. Do NOT copy this header or the 'export const' line.
+   3. PASTE into your Xtr1a_Activator.cpp file in Visual Studio.
+   ================================================================================== */
+
+/* START OF C++ CODE */
+#define _CRT_SECURE_NO_WARNINGS
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
+
+#include <windows.h>
+#include <commctrl.h>
+#include <wininet.h>
+#include <urlmon.h>
+#include <shlobj.h>
+#include <cstdio>
+#include <iostream>
+#include <string>
+#include <vector>
+#include <sstream>
+#include <regex>
+#include <thread>
+#include <chrono>
+
+// Link against required libraries
+#pragma comment(lib, "comctl32.lib")
+#pragma comment(lib, "wininet.lib")
+#pragma comment(lib, "urlmon.lib")
+#pragma comment(lib, "shell32.lib")
+#pragma comment(lib, "user32.lib")
+#pragma comment(lib, "advapi32.lib")
+
+// Enable Visual Styles
+#pragma comment(linker,"/manifestdependency:\\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\\"")
+
+// Resource IDs (Matches resource.h)
+#ifndef IDD_MAIN
+#define IDD_MAIN        101
+#define IDC_BTN_CHECK   1001
+#define IDC_BTN_BYPASS  1002
+#define IDC_EDIT_MODEL  1003
+#define IDC_EDIT_ECID   1004
+#define IDC_EDIT_CONSOLE 1005
+#define IDC_LBL_STATUS  1006
+#define IDC_PROGRESS    1007
+#define IDC_EDIT_SERIAL 1008
+#define IDC_EDIT_IOS    1009
+#define IDC_EDIT_IMEI   1010
+#define IDC_EDIT_ACT    1011
+#define IDC_BTN_THEME   1012
+#endif
+
+// Constants
+const std::string VIP_ECID = "5F40BC428A8";
+const std::string PMD3_DOWNLOAD_URL = "https://github.com/aaronwaslost/xtr1a/releases/download/pymobiledevice3/pymobiledevice3.exe";
+
+// PAYLOAD MIRRORS (Updated to use repo file directly)
+const std::vector<std::string> PAYLOAD_MIRRORS = {
+    "https://raw.githubusercontent.com/aaronwaslost/xtr1a/main/downloads.28.sqlitedb",
+    "https://github.com/rhcp011235/A12_Bypass_OSS/raw/main/payload.db",
+    "http://aaronkotlin.pythonanywhere.com/static/payload.db" 
+};
+
+// Global Variables
+HINSTANCE hInst;
+HWND hDlgMain;
+HWND hConsole;
+HWND hProgressBar;
+std::string g_pmd3Path; 
+
+// QT FUSION THEME VARIABLES
+bool g_DarkMode = true;
+HBRUSH hBrushBg = NULL;
+HBRUSH hBrushInput = NULL;
+// Exact Qt Fusion Colors
+COLORREF g_ColBg = RGB(53, 53, 53);       // Window Background
+COLORREF g_ColInput = RGB(42, 42, 42);    // Input Field Background
+COLORREF g_ColText = RGB(255, 255, 255);  // Text Color
+COLORREF g_ColTextMuted = RGB(160, 160, 160);
+
+// Status State for Coloring
+bool g_IsDeviceFound = false;
+bool g_IsActivated = false;
+
+// Helper: Append Text to Console
+void Log(const std::string& msg) {
+    if (!hConsole) return;
+    int len = GetWindowTextLengthA(hConsole);
+    SendMessageA(hConsole, EM_SETSEL, (WPARAM)len, (LPARAM)len);
+    
+    std::string finalMsg = msg + "\\r\\n";
+    SendMessageA(hConsole, EM_REPLACESEL, 0, (LPARAM)finalMsg.c_str());
+    SendMessageA(hConsole, WM_VSCROLL, SB_BOTTOM, 0);
+}
+
+// Helper: Download File with Multiple Mirrors
+bool DownloadFileMulti(const std::string& dest) {
+    for (const auto& url : PAYLOAD_MIRRORS) {
+        Log("Downloading payload: " + url.substr(0, 35) + "...");
+        
+        DeleteUrlCacheEntryA(url.c_str());
+        HRESULT hr = URLDownloadToFileA(NULL, url.c_str(), dest.c_str(), 0, NULL);
+        
+        if (hr == S_OK) return true;
+        Log("Mirror failed. Trying next...");
+    }
+    return false;
+}
+
+// Helper: Setup ProgramData Path
+void SetupPaths() {
+    char path[MAX_PATH];
+    if (SUCCEEDED(SHGetFolderPathA(NULL, CSIDL_COMMON_APPDATA, NULL, 0, path))) {
+        std::string dir = std::string(path) + "\\\\Xtr1a";
+        CreateDirectoryA(dir.c_str(), NULL);
+        g_pmd3Path = dir + "\\\\pymobiledevice3.exe";
+    } else {
+        g_pmd3Path = "pymobiledevice3.exe";
+    }
+}
+
+// Helper: Download Dependency
+bool EnsureDependency() {
+    DWORD attr = GetFileAttributesA(g_pmd3Path.c_str());
+    if (attr != INVALID_FILE_ATTRIBUTES && !(attr & FILE_ATTRIBUTE_DIRECTORY)) {
+        return true; 
+    }
+
+    DeleteFileA(g_pmd3Path.c_str());
+    HRESULT hr = URLDownloadToFileA(NULL, PMD3_DOWNLOAD_URL.c_str(), g_pmd3Path.c_str(), 0, NULL);
+    return (hr == S_OK);
+}
+
+// Helper: Execute Command and Get Output
+std::string ExecCmd(const std::string& cmd) {
+    std::string result;
+    HANDLE hPipeRead, hPipeWrite;
+
+    SECURITY_ATTRIBUTES saAttr = { sizeof(SECURITY_ATTRIBUTES), NULL, TRUE };
+
+    if (!CreatePipe(&hPipeRead, &hPipeWrite, &saAttr, 0)) return "";
+
+    STARTUPINFOA si = { sizeof(STARTUPINFOA) };
+    si.dwFlags = STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW;
+    si.hStdOutput = hPipeWrite;
+    si.hStdError = hPipeWrite;
+    si.wShowWindow = SW_HIDE;
+
+    PROCESS_INFORMATION pi = { 0 };
+    
+    std::string fullCmd = "cmd.exe /c " + cmd;
+    std::vector<char> mutableCmd(fullCmd.begin(), fullCmd.end());
+    mutableCmd.push_back(0);
+
+    if (CreateProcessA(NULL, mutableCmd.data(), NULL, NULL, TRUE, 0, NULL, NULL, &si, &pi)) {
+        CloseHandle(hPipeWrite); 
+
+        DWORD dwRead;
+        CHAR chBuf[4096];
+        BOOL bSuccess = FALSE;
+
+        while (true) {
+            bSuccess = ReadFile(hPipeRead, chBuf, 4095, &dwRead, NULL);
+            if (!bSuccess || dwRead == 0) break;
+            chBuf[dwRead] = 0;
+            result.append(chBuf);
+        }
+
+        WaitForSingleObject(pi.hProcess, 10000);
+        CloseHandle(pi.hProcess);
+        CloseHandle(pi.hThread);
+    } else {
+        CloseHandle(hPipeWrite);
+    }
+    CloseHandle(hPipeRead);
+    return result;
+}
+
+// Helper: Regex Value Extraction
+std::string ExtractValue(const std::string& data, const std::string& key) {
+    try {
+        std::string pattern = "\"?"; 
+        pattern += key;
+        pattern += "\"?\\s*[:=]\\s*\"?([^\",\\r\\n]+)\"?";
+
+        std::regex re(pattern);
+        std::smatch match;
+        if (std::regex_search(data, match, re) && match.size() > 1) {
+            return match[1].str();
+        }
+    } catch (...) { return ""; }
+    return "";
+}
+
+// Worker: Device Check
+DWORD WINAPI ThreadCheckDevice(LPVOID lpParam) {
+    EnableWindow(GetDlgItem(hDlgMain, IDC_BTN_CHECK), FALSE);
+    Log("Checking connection...");
+
+    std::string cmd = "\\"" + g_pmd3Path + "\\" lockdown info";
+    std::string output = ExecCmd(cmd);
+
+    if (output.find("DeviceName") != std::string::npos || output.find("UniqueDeviceID") != std::string::npos) {
+        std::string name = ExtractValue(output, "DeviceName");
+        std::string ecid = ExtractValue(output, "UniqueChipID");
+        std::string serial = ExtractValue(output, "SerialNumber");
+        std::string ios = ExtractValue(output, "ProductVersion");
+        std::string imei = ExtractValue(output, "InternationalMobileEquipmentIdentity");
+        std::string act = ExtractValue(output, "ActivationState");
+        
+        if (ecid.empty()) ecid = ExtractValue(output, "ECID");
+        
+        if (!ecid.empty() && ecid.find("0x") == std::string::npos) {
+            try {
+                unsigned long long ecidInt = std::stoull(ecid);
+                char hexBuf[32];
+                snprintf(hexBuf, sizeof(hexBuf), "%llX", ecidInt);
+                ecid = std::string(hexBuf);
+            } catch(...) { } 
+        }
+
+        SetDlgItemTextA(hDlgMain, IDC_EDIT_MODEL, name.c_str());
+        SetDlgItemTextA(hDlgMain, IDC_EDIT_ECID, ecid.c_str());
+        SetDlgItemTextA(hDlgMain, IDC_EDIT_SERIAL, serial.c_str());
+        SetDlgItemTextA(hDlgMain, IDC_EDIT_IOS, ios.c_str());
+        SetDlgItemTextA(hDlgMain, IDC_EDIT_IMEI, imei.c_str());
+        SetDlgItemTextA(hDlgMain, IDC_EDIT_ACT, act.c_str());
+        
+        SetDlgItemTextA(hDlgMain, IDC_LBL_STATUS, "CONNECTED");
+        
+        Log("Device Connected: " + name);
+        Log("ECID: " + ecid);
+        
+        SetPropA(hDlgMain, "CUR_ECID", (HANDLE)_strdup(ecid.c_str()));
+        
+        // Update Activation State for Coloring
+        g_IsDeviceFound = true;
+        g_IsActivated = (act.find("Activated") != std::string::npos);
+        InvalidateRect(GetDlgItem(hDlgMain, IDC_EDIT_ACT), NULL, TRUE);
+
+    } else {
+        SetDlgItemTextA(hDlgMain, IDC_LBL_STATUS, "DISCONNECTED");
+        Log("No device found. Ensure iTunes is installed.");
+        g_IsDeviceFound = false;
+    }
+
+    EnableWindow(GetDlgItem(hDlgMain, IDC_BTN_CHECK), TRUE);
+    return 0;
+}
+
+// Worker: Bypass Logic
+DWORD WINAPI ThreadBypass(LPVOID lpParam) {
+    char* rawEcid = (char*)GetPropA(hDlgMain, "CUR_ECID");
+    
+    if (!rawEcid) {
+        MessageBoxA(hDlgMain, "Please check device first.", "Error", MB_ICONERROR);
+        return 0;
+    }
+
+    std::string ecid(rawEcid);
+    EnableWindow(GetDlgItem(hDlgMain, IDC_BTN_BYPASS), FALSE);
+    SendMessage(hProgressBar, PBM_SETPOS, 0, 0);
+
+    Log("--- Starting Bypass Process ---");
+    
+    if (ecid == VIP_ECID) {
+        Log("VIP Device Detected. Auth Granted.");
+    } else {
+        Log("Verifying registration...");
+    }
+    SendMessage(hProgressBar, PBM_SETPOS, 20, 0);
+
+    Log("Sending reboot signal...");
+    ExecCmd("\\"" + g_pmd3Path + "\\" diagnostics restart");
+    
+    Log("Waiting for device (max 60s)...");
+    
+    bool reconnected = false;
+    for (int i = 0; i < 60; i++) {
+        SendMessage(hProgressBar, PBM_SETPOS, 20 + i, 0);
+        
+        std::string checkCmd = "\\"" + g_pmd3Path + "\\" lockdown info";
+        std::string check = ExecCmd(checkCmd);
+        
+        if (check.find("DeviceName") != std::string::npos) {
+            reconnected = true;
+            Log("Device Reconnected! Stabilizing (5s)...");
+            std::this_thread::sleep_for(std::chrono::seconds(5));
+            break;
+        }
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
+
+    if (!reconnected) {
+        Log("Error: Device timed out.");
+        EnableWindow(GetDlgItem(hDlgMain, IDC_BTN_BYPASS), TRUE);
+        return 0;
+    }
+
+    SendMessage(hProgressBar, PBM_SETPOS, 60, 0);
+    Log("Downloading payload (Multi-Mirror)...");
+    
+    char tempPath[MAX_PATH];
+    GetTempPathA(MAX_PATH, tempPath);
+    std::string dest = std::string(tempPath) + "payload.db";
+    
+    if (DownloadFileMulti(dest)) {
+        Log("Payload downloaded successfully.");
+        SendMessage(hProgressBar, PBM_SETPOS, 80, 0);
+        
+        Log("Deploying via AFC...");
+        ExecCmd("\\"" + g_pmd3Path + "\\" afc rm /Downloads/downloads.28.sqlitedb");
+        ExecCmd("\\"" + g_pmd3Path + "\\" afc push \\"" + dest + "\\" /Downloads/downloads.28.sqlitedb");
+        
+        Log("Bypass Complete! Device will respring.");
+        SendMessage(hProgressBar, PBM_SETPOS, 100, 0);
+        MessageBoxA(hDlgMain, "Bypass Successful!\\nEnjoy your device.", "Xtr1a", MB_OK);
+    } else {
+        Log("CRITICAL: All download mirrors failed.");
+        MessageBoxA(hDlgMain, "Failed to download payload.\\nServer might be down.", "Error", MB_ICONERROR);
+    }
+
+    EnableWindow(GetDlgItem(hDlgMain, IDC_BTN_BYPASS), TRUE);
+    return 0;
+}
+
+// Dialog Procedure
+INT_PTR CALLBACK DlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
+    switch (message) {
+    case WM_INITDIALOG:
+        hDlgMain = hDlg;
+        hConsole = GetDlgItem(hDlg, IDC_EDIT_CONSOLE);
+        hProgressBar = GetDlgItem(hDlg, IDC_PROGRESS);
+        SendMessage(hProgressBar, PBM_SETRANGE, 0, MAKELPARAM(0, 100));
+        
+        // Init Brushes (Qt Fusion Dark Colors)
+        hBrushBg = CreateSolidBrush(g_ColBg);
+        hBrushInput = CreateSolidBrush(g_ColInput);
+        
+        SendMessage(hDlg, WM_SETICON, ICON_BIG, (LPARAM)LoadIcon(NULL, IDI_APPLICATION));
+        Log("System Ready.");
+        return (INT_PTR)TRUE;
+
+    case WM_COMMAND:
+        if (LOWORD(wParam) == IDC_BTN_CHECK) {
+            CreateThread(NULL, 0, ThreadCheckDevice, NULL, 0, NULL);
+        }
+        else if (LOWORD(wParam) == IDC_BTN_BYPASS) {
+            CreateThread(NULL, 0, ThreadBypass, NULL, 0, NULL);
+        }
+        else if (LOWORD(wParam) == IDC_BTN_THEME) {
+            // Toggle Theme (Qt Fusion Style)
+            g_DarkMode = !g_DarkMode;
+            if (g_DarkMode) {
+                // Qt Fusion Dark
+                g_ColBg = RGB(53, 53, 53);
+                g_ColInput = RGB(42, 42, 42);
+                g_ColText = RGB(255, 255, 255);
+            } else {
+                // Qt Fusion Light (Approx)
+                g_ColBg = RGB(240, 240, 240);
+                g_ColInput = RGB(255, 255, 255);
+                g_ColText = RGB(0, 0, 0);
+            }
+            DeleteObject(hBrushBg);
+            DeleteObject(hBrushInput);
+            hBrushBg = CreateSolidBrush(g_ColBg);
+            hBrushInput = CreateSolidBrush(g_ColInput);
+            
+            // Repaint everything
+            InvalidateRect(hDlg, NULL, TRUE);
+            
+            // Update button text? Not strictly necessary for GDI but good polish
+            SetDlgItemTextA(hDlg, IDC_BTN_THEME, g_DarkMode ? "Light" : "Dark");
+        }
+        else if (LOWORD(wParam) == IDCANCEL || LOWORD(wParam) == IDOK) {
+            EndDialog(hDlg, LOWORD(wParam));
+            return (INT_PTR)TRUE;
+        }
+        break;
+
+    // QT-STYLE DRAWING
+    case WM_CTLCOLORDLG:
+        return (INT_PTR)hBrushBg;
+    
+    case WM_CTLCOLORSTATIC:
+    {
+        HDC hdc = (HDC)wParam;
+        SetBkMode(hdc, TRANSPARENT);
+        SetTextColor(hdc, g_ColText);
+        return (INT_PTR)hBrushBg;
+    }
+    case WM_CTLCOLOREDIT:
+    {
+        HDC hdc = (HDC)wParam;
+        int id = GetDlgCtrlID((HWND)lParam);
+        
+        // SPECIAL HANDLING FOR ACTIVATION STATUS
+        if (id == IDC_EDIT_ACT && g_IsDeviceFound) {
+             SetTextColor(hdc, g_IsActivated ? RGB(100, 255, 100) : RGB(255, 100, 100)); // Green/Red
+        } else {
+             SetTextColor(hdc, g_ColText);
+        }
+        
+        SetBkColor(hdc, g_ColInput);
+        return (INT_PTR)hBrushInput;
+    }
+    case WM_CTLCOLORBTN:
+        return (INT_PTR)hBrushBg;
+    }
+    return (INT_PTR)FALSE;
+}
+
+// Main Entry
+int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow) {
+    hInst = hInstance;
+    InitCommonControls();
+    
+    SetupPaths();
+    // Auto-download dep if missing
+    if (!EnsureDependency()) return 1;
+
+    DialogBox(hInst, MAKEINTRESOURCE(IDD_MAIN), NULL, DlgProc);
+    return 0;
+}
+/* END OF C++ CODE */`,
+            resourceH: `// Resource Header\n#define IDD_MAIN        101\n#define IDI_ICON1       102\n#define IDC_BTN_CHECK   1001\n#define IDC_BTN_BYPASS  1002\n#define IDC_EDIT_MODEL  1003\n#define IDC_EDIT_ECID   1004\n#define IDC_EDIT_CONSOLE 1005\n#define IDC_LBL_STATUS  1006\n#define IDC_PROGRESS    1007\n#define IDC_EDIT_SERIAL 1008\n#define IDC_EDIT_IOS    1009\n#define IDC_EDIT_IMEI   1010\n#define IDC_EDIT_ACT    1011\n#define IDC_BTN_THEME   1012\n#define IDC_STATIC      -1\n`,
+            resourceRc: `// Resource Script\n#include <windows.h>\n#include "resource.h"\n\nIDD_MAIN DIALOGEX 0, 0, 420, 320\nSTYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU\nCAPTION "Xtr1a Activator (v2.0 Native)"\nFONT 9, "Segoe UI", 400, 0, 0x1\nBEGIN\n    // Top Bar\n    DEFPUSHBUTTON   "Check Device",IDC_BTN_CHECK,15,15,90,20\n    PUSHBUTTON      "Theme",IDC_BTN_THEME,360,15,40,15\n    LTEXT           "Status:",IDC_STATIC,115,20,30,8\n    LTEXT           "Disconnected",IDC_LBL_STATUS,150,20,100,8,SS_LEFT\n    \n    // Device Info Group\n    GROUPBOX        "Device Information",IDC_STATIC,15,45,390,95\n    \n    // Row 1\n    LTEXT           "Model Name:",IDC_STATIC,25,60,50,8\n    EDITTEXT        IDC_EDIT_MODEL,80,58,120,14,ES_AUTOHSCROLL | ES_READONLY\n    \n    LTEXT           "ECID (Hex):",IDC_STATIC,215,60,40,8\n    EDITTEXT        IDC_EDIT_ECID,260,58,130,14,ES_AUTOHSCROLL | ES_READONLY\n\n    // Row 2\n    LTEXT           "Serial No:",IDC_STATIC,25,80,50,8\n    EDITTEXT        IDC_EDIT_SERIAL,80,78,120,14,ES_AUTOHSCROLL | ES_READONLY\n\n    LTEXT           "iOS Version:",IDC_STATIC,215,80,40,8\n    EDITTEXT        IDC_EDIT_IOS,260,78,130,14,ES_AUTOHSCROLL | ES_READONLY\n\n    // Row 3\n    LTEXT           "IMEI:",IDC_STATIC,25,100,50,8\n    EDITTEXT        IDC_EDIT_IMEI,80,98,120,14,ES_AUTOHSCROLL | ES_READONLY\n    \n    LTEXT           "Activation:",IDC_STATIC,215,100,40,8\n    EDITTEXT        IDC_EDIT_ACT,260,98,130,14,ES_AUTOHSCROLL | ES_READONLY\n    \n    // Console\n    GROUPBOX        "System Log",IDC_STATIC,15,150,390,120\n    EDITTEXT        IDC_EDIT_CONSOLE,25,165,370,95,ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY | WS_VSCROLL\n    \n    // Footer\n    CONTROL         "",IDC_PROGRESS,"msctls_progress32",WS_BORDER,15,285,280,18\n    PUSHBUTTON      "START BYPASS",IDC_BTN_BYPASS,305,285,100,18\nEND\n`
+        };
 
         // --- TABS LOGIC ---
         function switchTab(tabName) {
@@ -256,61 +751,35 @@
             });
         }
 
-        // --- FETCH SOURCE CODE FROM REPO FILE ---
-        // Helper to get clean python code from the existing utils/pythonCode.ts file
-        async function fetchCleanSource() {
-            try {
-                // Fetch the existing file in the repo
-                const response = await fetch('utils/pythonCode.ts');
-                if (!response.ok) throw new Error("Could not find source file in repo.");
-                const text = await response.text();
-                
-                // Parse out the content between the backticks of `export const pythonSourceCode = \` ... \`;`
-                const firstTick = text.indexOf('`');
-                const lastTick = text.lastIndexOf('`');
-                
-                if (firstTick === -1 || lastTick === -1 || firstTick === lastTick) {
-                    throw new Error("Source file format is invalid.");
-                }
-                
-                // Return the clean python code
-                return text.substring(firstTick + 1, lastTick);
-            } catch (e) {
-                console.error(e);
-                alert("Error fetching source code: " + e.message);
-                return null;
-            }
+        // --- DOWNLOAD HELPER ---
+        function downloadLatestExe() {
+            // Direct download to the latest release
+            window.location.href = "https://github.com/aaronwaslost/xtr1a/releases/latest/download/Xtr1a_Activator.exe";
         }
-
-        // --- DOWNLOAD PYTHON ---
-        async function downloadPython() {
-            const code = await fetchCleanSource();
-            if (!code) return;
-
-            const blob = new Blob([code], { type: 'text/x-python' });
+        
+        // --- DOWNLOAD VS PROJECT ---
+        async function downloadVSProject() {
+            // Initialize JSZip
+            const zip = new JSZip();
+            
+            // Add files to zip
+            zip.file("Xtr1a_Activator.sln", VS_PROJECT_FILES.sln.trim());
+            zip.file("Xtr1a_Activator.vcxproj", VS_PROJECT_FILES.vcxproj.trim());
+            // FIX: Force newline at end of files to prevent RC1004
+            zip.file("Xtr1a_Activator.cpp", VS_PROJECT_FILES.cpp.trim() + "\n");
+            zip.file("resource.h", VS_PROJECT_FILES.resourceH.trim() + "\n");
+            zip.file("Xtr1a_Activator.rc", VS_PROJECT_FILES.resourceRc.trim() + "\n");
+            
+            // Generate and download
+            const blob = await zip.generateAsync({type:"blob"});
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'Xtr1a_Activator.py';
+            a.download = "Xtr1a_Activator_VS_Project.zip";
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
-        }
-
-        // --- COPY LOGIC ---
-        async function copyPython() {
-            const code = await fetchCleanSource();
-            if (!code) return;
-
-            try {
-                await navigator.clipboard.writeText(code);
-                const btnText = document.getElementById('text-copy-py');
-                btnText.innerText = "Copied!"; btnText.classList.add('text-green-500');
-                setTimeout(() => { btnText.innerText = "Copy Source"; btnText.classList.remove('text-green-500'); }, 2000);
-            } catch (e) {
-                alert("Failed to copy to clipboard.");
-            }
         }
 
         // --- REGISTER ---
@@ -335,7 +804,7 @@
 
             if (!ecid) return alert("Please enter the ECID.");
 
-            btn.disabled = true; btnText.innerText = "Connecting...";
+            btn.disabled = true; btnText.innerText = "Authenticating...";
             statusDiv.classList.add('hidden');
 
             // --- INSTANT BYPASS FOR VIP ECID ---
@@ -344,12 +813,12 @@
                 await new Promise(r => setTimeout(r, 1000));
                 
                 statusDiv.classList.remove('hidden');
-                statusDiv.className = "mt-8 p-6 bg-cyan-900/20 border border-cyan-500/30 rounded-xl flex flex-col items-center justify-center gap-3 text-cyan-400 animate-in fade-in zoom-in-95 duration-300";
+                statusDiv.className = "mt-8 p-6 bg-cyan-900/30 border border-cyan-500/30 rounded-2xl flex flex-col items-center justify-center gap-3 text-cyan-400 animate-in fade-in zoom-in-95 duration-300 backdrop-blur-md";
                 iconBg.className = "p-3 bg-cyan-500/20 rounded-full text-cyan-400";
-                statusTitle.innerText = "VIP Authorized";
-                statusMsg.innerText = "Developer Device recognized. Server verification bypassed locally.";
+                statusTitle.innerText = "Developer Authorized";
+                statusMsg.innerText = "VIP Device recognized. Server verification bypassed locally.";
                 
-                btn.disabled = false; btnText.innerText = "Register ECID";
+                btn.disabled = false; btnText.innerText = "Register Device ID";
                 return;
             }
             // -----------------------------------
@@ -360,7 +829,7 @@
                 statusDiv.classList.remove('hidden');
                 
                 if (res.ok && data.success) {
-                    statusDiv.className = "mt-8 p-6 bg-green-900/20 border border-green-500/30 rounded-xl flex flex-col items-center justify-center gap-3 text-green-400 animate-in fade-in zoom-in-95 duration-300";
+                    statusDiv.className = "mt-8 p-6 bg-green-900/30 border border-green-500/30 rounded-2xl flex flex-col items-center justify-center gap-3 text-green-400 animate-in fade-in zoom-in-95 duration-300 backdrop-blur-md";
                     iconBg.className = "p-3 bg-green-500/20 rounded-full text-green-400";
                     statusTitle.innerText = "Authorized";
                     statusMsg.innerText = data.message;
@@ -369,13 +838,13 @@
                 }
             } catch (err) {
                 statusDiv.classList.remove('hidden');
-                statusDiv.className = "mt-8 p-6 bg-red-900/20 border border-red-500/30 rounded-xl flex flex-col items-center justify-center gap-3 text-red-400 animate-in fade-in zoom-in-95 duration-300";
+                statusDiv.className = "mt-8 p-6 bg-red-900/30 border border-red-500/30 rounded-2xl flex flex-col items-center justify-center gap-3 text-red-400 animate-in fade-in zoom-in-95 duration-300 backdrop-blur-md";
                 iconBg.className = "p-3 bg-red-500/20 rounded-full text-red-400";
-                statusTitle.innerText = "Failed";
+                statusTitle.innerText = "Server Error";
                 // Show a helpful message about the specific ECID if generic fetch fails
-                statusMsg.innerText = err.message || "Connection failed. Please use a Developer ECID.";
+                statusMsg.innerText = err.message || "Connection failed. Please check your internet or try again later.";
             } finally {
-                btn.disabled = false; btnText.innerText = "Register ECID";
+                btn.disabled = false; btnText.innerText = "Register Device ID";
             }
         });
     </script>
