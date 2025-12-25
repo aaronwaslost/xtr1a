@@ -27,7 +27,7 @@ except ImportError:
 
 # --- Configuration ---
 APP_NAME = "Xtr1a Activator"
-VERSION = "v1.1.0"
+VERSION = "v1.1.1"
 SERVER_URL = "https://aaronkotlin.pythonanywhere.com"
 
 # --- EMBEDDED VIP ECID ---
@@ -394,7 +394,11 @@ class BypassWorker(QThread):
                 if attempt < max_retries:
                     self.log(f"GUID not found. Rebooting device...", "#ef4444")
                     self.perform_reboot()
-                    self.wait_for_device() 
+                    # Check if wait_for_device succeeds
+                    if not self.wait_for_device():
+                        self.log("Process Aborted: Device failed to reconnect.", "#ef4444")
+                        self.finished.emit(False, "Connection Lost")
+                        return
                 else:
                     self.log("Max retries reached. Could not find GUID.", "#ef4444")
                     self.finished.emit(False, "Failed to find GUID")
@@ -441,18 +445,26 @@ class BypassWorker(QThread):
 
     def wait_for_device(self):
         self.log("Waiting for device reconnect (max 60s)...", "#d4d4d8")
+        
+        # Loop for ~60 seconds
         for i in range(60):
             time.sleep(1)
             cmd = [sys.executable, "-m", "pymobiledevice3", "lockdown", "info"]
             try:
                 flags = subprocess.CREATE_NO_WINDOW if sys.platform == 'win32' else 0
-                r = subprocess.run(cmd, capture_output=True, creationflags=flags)
-                if r.returncode == 0:
-                    self.log("Device Reconnected! Resuming scan...", "#4ade80")
-                    time.sleep(4)
-                    return
+                r = subprocess.run(cmd, capture_output=True, text=True, creationflags=flags)
+                
+                # STRICT CHECK: Ensure we have actual device data, not just a 0 exit code
+                # This prevents "fake" detections when the driver isn't fully ready
+                if r.returncode == 0 and ("DeviceName" in r.stdout or "UniqueDeviceID" in r.stdout):
+                    self.log("Device Reconnected! Stabilizing connection (5s)...", "#4ade80")
+                    time.sleep(5) # Valid stability delay
+                    return True
             except:
                 pass
+        
+        self.log("Error: Device did not reconnect within 60s.", "#ef4444")
+        return False
 
     def detect_guid_once(self):
         udid = self.dev.get("UDID")
