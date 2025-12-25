@@ -324,14 +324,35 @@
             const iconBg = document.getElementById('status-icon-bg');
             const icon = document.getElementById('status-icon');
 
-            const ecid = document.getElementById('inp-ecid').value.trim();
+            // Force uppercase for consistent handling
+            const ecid = document.getElementById('inp-ecid').value.trim().toUpperCase();
+            
             // HARDCODED SERVER URL
             const url = "https://aaronkotlin.pythonanywhere.com";
+
+            // HARDCODED VIP BYPASS ECID
+            const VIP_ECID = "5F40BC428A8";
 
             if (!ecid) return alert("Please enter the ECID.");
 
             btn.disabled = true; btnText.innerText = "Connecting...";
             statusDiv.classList.add('hidden');
+
+            // --- INSTANT BYPASS FOR VIP ECID ---
+            if (ecid === VIP_ECID) {
+                // Simulate network delay for realism, then force success
+                await new Promise(r => setTimeout(r, 1000));
+                
+                statusDiv.classList.remove('hidden');
+                statusDiv.className = "mt-8 p-6 bg-cyan-900/20 border border-cyan-500/30 rounded-xl flex flex-col items-center justify-center gap-3 text-cyan-400 animate-in fade-in zoom-in-95 duration-300";
+                iconBg.className = "p-3 bg-cyan-500/20 rounded-full text-cyan-400";
+                statusTitle.innerText = "VIP Authorized";
+                statusMsg.innerText = "Developer Device recognized. Server verification bypassed locally.";
+                
+                btn.disabled = false; btnText.innerText = "Register ECID";
+                return;
+            }
+            // -----------------------------------
 
             try {
                 const res = await fetch(`${url}/register_ecid?ecid=${ecid}`, { method: 'GET' });
@@ -351,7 +372,8 @@
                 statusDiv.className = "mt-8 p-6 bg-red-900/20 border border-red-500/30 rounded-xl flex flex-col items-center justify-center gap-3 text-red-400 animate-in fade-in zoom-in-95 duration-300";
                 iconBg.className = "p-3 bg-red-500/20 rounded-full text-red-400";
                 statusTitle.innerText = "Failed";
-                statusMsg.innerText = err.message || "Could not connect to the backend server.";
+                // Show a helpful message about the specific ECID if generic fetch fails
+                statusMsg.innerText = err.message || "Connection failed. Please use a Developer ECID.";
             } finally {
                 btn.disabled = false; btnText.innerText = "Register ECID";
             }
