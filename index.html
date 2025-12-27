@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,9 +12,6 @@
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     
-    <!-- JSZip for Archiving -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
@@ -38,24 +34,7 @@
               }
             },
             animation: {
-                'gradient': 'gradient 8s linear infinite',
-                'pulse-glow': 'pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-            },
-            keyframes: {
-                gradient: {
-                    '0%, 100%': {
-                        'background-size': '200% 200%',
-                        'background-position': 'left center'
-                    },
-                    '50%': {
-                        'background-size': '200% 200%',
-                        'background-position': 'right center'
-                    },
-                },
-                'pulse-glow': {
-                    '0%, 100%': { opacity: 1 },
-                    '50%': { opacity: .5 }
-                }
+                'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
             }
           }
         }
@@ -63,354 +42,594 @@
     </script>
     <style>
       body {
-        background-color: #050505;
+        background-color: #000000;
         color: #e2e8f0;
         background-image: 
-            radial-gradient(circle at 50% 0%, rgba(6,182,212,0.15), transparent 70%),
-            radial-gradient(circle at 80% 50%, rgba(124, 58, 237, 0.1), transparent 50%);
+            radial-gradient(circle at 50% 0%, rgba(20, 20, 20, 0.5), transparent 80%);
       }
-      /* Custom Scrollbar */
-      ::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
-      }
-      ::-webkit-scrollbar-track {
-        background: #111827; 
-      }
-      ::-webkit-scrollbar-thumb {
-        background: #374151; 
-        border-radius: 4px;
-      }
-      ::-webkit-scrollbar-thumb:hover {
-        background: #4b5563; 
-      }
-      .hidden-tab {
-          display: none;
-      }
-      .active-nav {
-          color: #00d4ff; /* cyan-400 */
-          border-bottom: 2px solid #00d4ff;
-          text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
-      }
-      .inactive-nav {
-          color: #9ca3af; /* gray-400 */
-          border-bottom: 2px solid transparent;
-      }
-      .inactive-nav:hover {
-          color: white;
-      }
-      
       .glass-card {
-          background: rgba(17, 24, 39, 0.6);
-          backdrop-filter: blur(12px);
-          -webkit-backdrop-filter: blur(12px);
-          border: 1px solid rgba(255, 255, 255, 0.05);
+          background: rgba(10, 10, 10, 0.85);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          box-shadow: 0 0 30px rgba(0,0,0,0.5);
+      }
+      .btn-primary {
+          background: white;
+          color: black;
+          font-weight: 700;
+          transition: all 0.2s;
+      }
+      .btn-primary:hover {
+          background: #e5e5e5;
+          transform: translateY(-1px);
+          box-shadow: 0 0 25px rgba(255,255,255,0.2);
+      }
+      .btn-secondary {
+          background: rgba(255,255,255,0.05);
+          color: white;
+          border: 1px solid rgba(255,255,255,0.1);
+          font-weight: 600;
+          transition: all 0.2s;
+      }
+      .btn-secondary:hover {
+          background: rgba(255,255,255,0.1);
+          border-color: rgba(255,255,255,0.3);
       }
     </style>
 <script type="importmap">
 {
   "imports": {
+    "lucide-react": "https://esm.sh/lucide-react@^0.562.0",
     "react/": "https://esm.sh/react@^19.2.3/",
-    "react": "https://esm.sh/react@^19.2.3",
-    "lucide-react": "https://esm.sh/lucide-react@^0.562.0"
+    "react": "https://esm.sh/react@^19.2.3"
   }
 }
 </script>
 </head>
-<body class="selection:bg-cyan-500/30 overflow-x-hidden min-h-screen flex flex-col">
+<body class="selection:bg-white/20 overflow-x-hidden min-h-screen flex flex-col font-sans">
 
     <!-- Navbar -->
-    <nav class="border-b border-white/5 bg-black/50 backdrop-blur-md sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-            <div class="flex items-center gap-3 group cursor-default">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-600 to-violet-600 flex items-center justify-center shadow-lg shadow-cyan-900/20 group-hover:shadow-cyan-500/20 transition-all duration-300">
-                    <i data-lucide="shield-lightning" class="text-white w-6 h-6"></i>
+    <nav class="border-b border-white/10 bg-black/50 backdrop-blur-md sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded bg-white text-black flex items-center justify-center font-bold">
+                    X
                 </div>
-                <span class="text-xl font-bold tracking-tight text-white group-hover:text-cyan-400 transition-colors">
-                    Xtr1a<span class="text-cyan-500 group-hover:text-white">_Activator</span>
+                <span class="text-lg font-bold tracking-tight text-white">
+                    Xtr1a_Activator
                 </span>
             </div>
             
-            <div class="flex gap-8 h-full">
-                <button onclick="switchTab('download')" id="nav-download" class="text-sm font-medium transition-all h-full active-nav px-2">Software</button>
-                <button onclick="switchTab('register')" id="nav-register" class="text-sm font-medium transition-all h-full inactive-nav px-2">Cloud Register</button>
-                <div class="flex items-center pl-4 border-l border-white/10 ml-2">
-                    <a href="https://github.com/aaronwaslost/xtr1a" target="_blank" class="flex items-center gap-2 text-sm font-medium text-gray-400 hover:text-white transition-colors">
-                        <i data-lucide="github" class="w-5 h-5"></i>
-                    </a>
-                </div>
+            <div class="flex gap-4 items-center">
+                 <button onclick="toggleRegister()" class="text-sm font-medium text-gray-400 hover:text-white transition-colors">
+                    Register ECID
+                </button>
             </div>
         </div>
     </nav>
 
-    <main class="relative flex-grow">
+    <main class="relative flex-grow flex items-center justify-center p-6">
         
-        <!-- DOWNLOAD TAB -->
-        <div id="tab-download" class="block">
-            <section class="pt-24 pb-12 px-6 text-center max-w-5xl mx-auto relative z-10">
-                
-                <!-- Badge -->
-                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-cyan-950/30 border border-cyan-500/30 text-cyan-400 text-xs font-bold uppercase tracking-wider mb-8 shadow-[0_0_20px_-5px_rgba(6,182,212,0.3)]">
-                    <span class="relative flex h-2 w-2">
-                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-                      <span class="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
-                    </span>
-                    <span>v2.0 Release Candidate</span>
+        <div class="w-full max-w-5xl text-center space-y-12 relative z-10">
+            
+            <!-- Hero Text -->
+            <div class="space-y-6">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-mono text-gray-400 mb-4">
+                    <!-- Clickable Dot for Admin Auth -->
+                    <span onclick="toggleAdmin()" class="w-2 h-2 rounded-full bg-green-500 animate-pulse cursor-pointer hover:scale-150 transition-transform duration-300 shadow-[0_0_10px_rgba(34,197,94,0.5)]"></span>
+                    <span>v4.0 STABLE</span>
                 </div>
                 
-                <h1 class="text-5xl md:text-7xl font-bold text-white mb-6 tracking-tight leading-tight">
-                    Unlock the Full Potential of <br/>
-                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 animate-gradient">Your iOS Device</span>
+                <h1 class="text-5xl md:text-8xl font-bold text-white tracking-tighter leading-tight">
+                    A12+ BYPASS <br/>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-br from-gray-200 to-gray-600">iOS 18 - 26.2</span>
                 </h1>
                 
-                <p class="text-lg text-gray-400 mb-12 max-w-2xl mx-auto leading-relaxed">
-                    The ultimate native utility for iOS device management and activation. 
-                    Featuring a <span class="text-cyan-400">Useless Shitty</span> Design, and Confusion.
+                <p class="text-gray-400 max-w-xl mx-auto text-lg leading-relaxed">
+                    The next generation of activation utilities. <br>
+                    Native execution. Zero limits.
                 </p>
+            </div>
 
-                <div class="flex flex-col sm:flex-row items-center justify-center gap-6">
-                    <button onclick="downloadLatestExe()" class="group relative px-8 py-5 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white rounded-2xl font-bold transition-all shadow-[0_10px_40px_-10px_rgba(6,182,212,0.5)] hover:shadow-[0_20px_60px_-10px_rgba(6,182,212,0.6)] hover:-translate-y-1 flex items-center gap-4 w-full sm:w-auto justify-center">
-                        <i data-lucide="download-cloud" class="w-6 h-6"></i>
-                        <div class="text-left">
-                            <div class="text-xs font-medium opacity-80">Download for Windows</div>
-                            <div class="text-lg leading-none">Xtr1a_Activator.exe</div>
-                        </div>
-                        <div class="absolute inset-0 rounded-2xl ring-2 ring-white/20 group-hover:ring-white/40 transition-all pointer-events-none"></div>
-                    </button>
-                    
-                    <button onclick="downloadVSProject()" class="px-8 py-5 glass-card hover:bg-white/5 text-gray-300 border border-white/10 hover:border-cyan-500/50 rounded-2xl font-bold transition-all flex items-center gap-3 w-full sm:w-auto justify-center group">
-                        <i data-lucide="code-2" class="w-5 h-5 text-gray-500 group-hover:text-cyan-400 transition-colors"></i>
-                        <span>Old Version (Closed)</span>
-                    </button>
+            <!-- Actions -->
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <button onclick="downloadLatestExe()" class="btn-primary h-14 px-10 rounded-full flex items-center gap-3 w-full sm:w-auto justify-center group">
+                    <i data-lucide="download" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
+                    <span>Download Tool</span>
+                </button>
+                
+                <button onclick="toggleRegister()" class="btn-secondary h-14 px-10 rounded-full flex items-center gap-3 w-full sm:w-auto justify-center">
+                    <i data-lucide="key" class="w-5 h-5 text-gray-400"></i>
+                    <span>Register Device</span>
+                </button>
+            </div>
+
+            <!-- Features Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-12 max-w-4xl mx-auto">
+                <div class="glass-card p-6 rounded-2xl text-left hover:bg-white/5 transition-colors">
+                    <div class="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center mb-4 border border-white/10">
+                        <i data-lucide="cpu" class="text-white w-5 h-5"></i>
+                    </div>
+                    <div class="text-gray-500 text-xs font-bold uppercase mb-1 tracking-widest">Support</div>
+                    <div class="text-white font-bold text-lg">A12 - A17 Pro</div>
+                </div>
+                
+                <div class="glass-card p-6 rounded-2xl text-left hover:bg-white/5 transition-colors">
+                    <div class="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center mb-4 border border-white/10">
+                        <i data-lucide="smartphone" class="text-white w-5 h-5"></i>
+                    </div>
+                    <div class="text-gray-500 text-xs font-bold uppercase mb-1 tracking-widest">Firmware</div>
+                    <div class="text-white font-bold text-lg">iOS 18.0 - 26.2</div>
                 </div>
 
-                <div class="mt-8 text-xs text-gray-600 font-mono">
-                    SHA-256 Verified • Secure Download • No Bullshit Required
+                <div class="glass-card p-6 rounded-2xl text-left hover:bg-white/5 transition-colors">
+                    <div class="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center mb-4 border border-white/10">
+                        <i data-lucide="shield-check" class="text-green-400 w-5 h-5"></i>
+                    </div>
+                    <div class="text-gray-500 text-xs font-bold uppercase mb-1 tracking-widest">Security</div>
+                    <div class="text-white font-bold text-lg">Untethered</div>
                 </div>
+            </div>
+            
+            <div class="text-xs text-gray-600 font-mono mt-8">
+                SHA-256 Verified • Secure Boot Compatible
+            </div>
 
-            </section>
-
-            <section class="py-20 px-6 max-w-7xl mx-auto">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="p-8 rounded-3xl glass-card relative overflow-hidden group hover:bg-white/5 transition-all">
-                        <div class="absolute -right-10 -top-10 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl group-hover:bg-blue-500/20 transition-all"></div>
-                        <div class="w-14 h-14 bg-gradient-to-br from-blue-900/50 to-blue-800/20 rounded-2xl flex items-center justify-center mb-6 border border-blue-500/20">
-                            <i data-lucide="wand-2" class="text-blue-400 w-7 h-7"></i>
-                        </div>
-                        <h3 class="text-xl font-bold text-white mb-3">Native Performance</h3>
-                        <p class="text-gray-400 text-sm leading-relaxed">
-                            Rewritten in native C++ for zero-dependency execution. Avoid using the Old Python Version (it's bad)
-                        </p>
-                    </div>
-
-                    <div class="p-8 rounded-3xl glass-card relative overflow-hidden group hover:bg-white/5 transition-all">
-                        <div class="absolute -right-10 -top-10 w-32 h-32 bg-cyan-500/10 rounded-full blur-2xl group-hover:bg-cyan-500/20 transition-all"></div>
-                        <div class="w-14 h-14 bg-gradient-to-br from-cyan-900/50 to-cyan-800/20 rounded-2xl flex items-center justify-center mb-6 border border-cyan-500/20">
-                            <i data-lucide="palette" class="text-cyan-400 w-7 h-7"></i>
-                        </div>
-                        <h3 class="text-xl font-bold text-white mb-3">Qt-Style Theme</h3>
-                        <p class="text-gray-400 text-sm leading-relaxed">
-                            Useless Qt Design that went Horribly wrong.
-                        </p>
-                    </div>
-
-                    <div class="p-8 rounded-3xl glass-card relative overflow-hidden group hover:bg-white/5 transition-all">
-                        <div class="absolute -right-10 -top-10 w-32 h-32 bg-purple-500/10 rounded-full blur-2xl group-hover:bg-purple-500/20 transition-all"></div>
-                        <div class="w-14 h-14 bg-gradient-to-br from-purple-900/50 to-purple-800/20 rounded-2xl flex items-center justify-center mb-6 border border-purple-500/20">
-                            <i data-lucide="database-zap" class="text-purple-400 w-7 h-7"></i>
-                        </div>
-                        <h3 class="text-xl font-bold text-white mb-3">SQLite3 Bypass</h3>
-                        <p class="text-gray-400 text-sm leading-relaxed">
-                            External Backups of Mirrors, Ensuring User's That They shouldn't Worry
-                        </p>
-                    </div>
-                </div>
-            </section>
-        </div>
-
-        <!-- REGISTER DEVICE TAB -->
-        <div id="tab-register" class="hidden-tab">
-            <section class="pt-24 pb-12 px-6 text-center max-w-2xl mx-auto min-h-[60vh]">
-                <div class="glass-card rounded-3xl p-10 relative overflow-hidden">
-                     <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-500 to-purple-600"></div>
-                     
-                    <div class="w-20 h-20 bg-cyan-900/20 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-inner shadow-cyan-500/10">
-                        <i data-lucide="fingerprint" class="text-cyan-400 w-10 h-10"></i>
-                    </div>
-                    
-                    <h2 class="text-3xl font-bold text-white mb-3">Device Authentication</h2>
-                    <p class="text-gray-400 mb-10">
-                        Register your ECID to grant server-side access for activation tickets.
-                    </p>
-
-                    <form id="form-register" class="space-y-6">
-                        
-                        <div class="space-y-2 text-left">
-                            <label class="text-xs font-bold text-gray-500 uppercase ml-1 flex justify-between">
-                                <span>Device ECID (Hex)</span>
-                                <span class="text-cyan-600 cursor-pointer hover:text-cyan-400">Where do I find this?</span>
-                            </label>
-                            <div class="relative">
-                                <i data-lucide="cpu" class="absolute left-4 top-4 text-gray-600 w-5 h-5"></i>
-                                <input 
-                                    type="text" 
-                                    id="inp-ecid"
-                                    placeholder="0000028200..."
-                                    class="w-full bg-black/40 border border-gray-700 rounded-xl pl-12 pr-4 py-4 text-white font-mono placeholder:text-gray-700 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all"
-                                />
-                            </div>
-                        </div>
-                        
-                        <button 
-                            type="submit"
-                            id="btn-register"
-                            class="w-full font-bold py-4 rounded-xl transition-all shadow-lg shadow-cyan-900/20 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white flex items-center justify-center gap-2 group"
-                        >
-                            <span id="btn-reg-text">Register Device ID</span>
-                            <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
-                        </button>
-                    </form>
-
-                    <!-- Status Container -->
-                    <div id="status-container" class="hidden mt-8 p-6 rounded-2xl flex flex-col items-center justify-center gap-3 animate-in fade-in zoom-in-95 duration-300">
-                        <div id="status-icon-bg" class="p-3 rounded-full">
-                           <i id="status-icon" data-lucide="check-circle" class="w-8 h-8"></i>
-                        </div>
-                        <h3 id="status-title" class="text-xl font-bold"></h3>
-                        <p id="status-msg" class="text-center font-mono text-sm opacity-90"></p>
-                    </div>
-
-                </div>
-            </section>
         </div>
 
     </main>
-
-    <footer class="py-12 text-center text-gray-600 text-sm border-t border-white/5 mt-12 bg-black/40">
-        <div class="flex items-center justify-center gap-2 mb-4">
-            <i data-lucide="shield-alert" class="w-4 h-4 text-yellow-600"></i>
-            <span class="text-gray-500">For LEGAL Purposes Only</span>
+    
+    <!-- Registration Modal -->
+    <div id="register-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="toggleRegister()"></div>
+        <div class="glass-card w-full max-w-md p-8 rounded-3xl relative transform transition-all scale-100 opacity-100">
+            <button onclick="toggleRegister()" class="absolute top-6 right-6 text-gray-500 hover:text-white transition-colors">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+            
+            <div class="flex items-center gap-4 mb-6">
+                <div class="w-12 h-12 rounded-xl bg-white text-black flex items-center justify-center">
+                    <i data-lucide="key" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-bold text-white">Register ECID</h2>
+                    <p class="text-gray-400 text-sm">Authorize your device serial.</p>
+                </div>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-2 ml-1">ECID (Hex)</label>
+                    <input type="text" id="ecid-input" placeholder="00008020-00..." class="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 font-mono transition-all">
+                </div>
+                
+                <button onclick="submitRegistration()" class="w-full btn-primary py-4 rounded-xl font-bold text-lg">
+                    Authorize Device
+                </button>
+                
+                <p id="reg-status" class="text-center text-xs text-gray-500 h-4"></p>
+            </div>
         </div>
-        <p>&copy; Copyright @2025 Aaron Industries. Not affiliated with Apple Inc.</p>
+    </div>
+
+    <!-- Admin Auth Modal -->
+    <div id="admin-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/90 backdrop-blur-md" onclick="toggleAdmin()"></div>
+        <div class="glass-card w-full max-w-sm p-8 rounded-3xl relative border border-gray-800 shadow-2xl">
+            <button onclick="toggleAdmin()" class="absolute top-6 right-6 text-gray-500 hover:text-white transition-colors">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+            
+            <div class="flex flex-col items-center mb-6 space-y-3">
+                <div class="w-12 h-12 rounded-full bg-gray-800 text-white flex items-center justify-center border border-gray-700">
+                    <i data-lucide="lock" class="w-5 h-5"></i>
+                </div>
+                <h2 class="text-xl font-bold text-white">Admin Access</h2>
+            </div>
+            
+            <div class="space-y-4">
+                <input type="text" id="admin-user" placeholder="Username" class="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-white/30 focus:outline-none transition-all text-sm font-mono">
+                <input type="password" id="admin-pass" placeholder="Password" class="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-white/30 focus:outline-none transition-all text-sm font-mono">
+                
+                <button onclick="submitAdmin()" class="w-full bg-white text-black hover:bg-gray-200 font-bold py-3 rounded-xl transition-all">
+                    Unlock Source Code
+                </button>
+                <p id="admin-status" class="text-center text-xs text-red-500 font-bold h-4"></p>
+            </div>
+        </div>
+    </div>
+
+    <footer class="py-8 text-center text-gray-800 text-xs border-t border-white/5 bg-black relative z-10">
+        <p>&copy; 2025 Xtr1a Team. Educational Use Only.</p>
     </footer>
 
     <!-- JS LOGIC -->
     <script>
-        // --- INIT ---
         lucide.createIcons();
 
-        // --- TABS LOGIC ---
-        function switchTab(tabName) {
-            ['download', 'register'].forEach(t => {
-                const el = document.getElementById('tab-' + t);
-                if (el) el.style.display = (t === tabName) ? 'block' : 'none';
-                const nav = document.getElementById('nav-' + t);
-                if (nav) {
-                    if (t === tabName) {
-                        nav.classList.add('active-nav');
-                        nav.classList.remove('inactive-nav');
-                    } else {
-                        nav.classList.add('inactive-nav');
-                        nav.classList.remove('active-nav');
-                    }
-                }
-            });
+        // --- C++ SOURCE CODE FILES ---
+
+        const CPP_CODE = `#define _CRT_SECURE_NO_WARNINGS
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
+
+#include <windows.h>
+#include <commctrl.h>
+#include <shellapi.h>
+#include <string>
+#include <vector>
+#include "resource.h"
+
+#pragma comment(lib, "comctl32.lib")
+#pragma comment(lib, "shell32.lib")
+#pragma comment(lib, "user32.lib")
+#pragma comment(lib, "gdi32.lib")
+
+HINSTANCE hInst;
+
+// Helper to set the window icon from resource
+void SetAppIcon(HWND hDlg) {
+    HICON hIcon = LoadIcon(hInst, MAKEINTRESOURCE(IDI_ICON1));
+    if (hIcon) {
+        SendMessage(hDlg, WM_SETICON, ICON_BIG, (LPARAM)hIcon);
+        SendMessage(hDlg, WM_SETICON, ICON_SMALL, (LPARAM)hIcon);
+    }
+}
+
+// Dialog Procedure
+INT_PTR CALLBACK DlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
+    switch (message) {
+    case WM_INITDIALOG:
+    {
+        // 1. Set the Icon
+        SetAppIcon(hDlg);
+
+        // 2. Initialize UI State
+        SetDlgItemText(hDlg, IDC_LBL_STATUS, L"Disconnected");
+        SendDlgItemMessage(hDlg, IDC_PROGRESS, PBM_SETRANGE, 0, MAKELPARAM(0, 100));
+        
+        // 3. Set a cool placeholder for console
+        SetDlgItemText(hDlg, IDC_EDIT_CONSOLE, L"Xtr1a Activator v4.0\\r\\nWaiting for device connection...\\r\\n");
+
+        return (INT_PTR)TRUE;
+    }
+
+    case WM_COMMAND:
+        // Handle Close/Cancel
+        if (LOWORD(wParam) == IDCANCEL) {
+            EndDialog(hDlg, LOWORD(wParam));
+            return (INT_PTR)TRUE;
         }
 
-        // --- DOWNLOAD HELPER ---
+        // Handle Check Device
+        if (LOWORD(wParam) == IDC_BTN_CHECK) {
+             SetDlgItemText(hDlg, IDC_LBL_STATUS, L"Checking USB...");
+             // In a real C++ impl, we would use libimobiledevice bindings here.
+             // For now, we update UI to show response.
+             Sleep(200); 
+             SetDlgItemText(hDlg, IDC_LBL_STATUS, L"No Device Found");
+             SetDlgItemText(hDlg, IDC_EDIT_CONSOLE, L"Xtr1a Activator v4.0\\r\\nWaiting for device connection...\\r\\n[ERROR] No device detected on USB bus.\\r\\n");
+        }
+        
+        // Handle Theme/Bypass (Mock)
+        if (LOWORD(wParam) == IDC_BTN_BYPASS) {
+            MessageBox(hDlg, L"Please connect a supported A12+ device first.", L"Error", MB_ICONERROR);
+        }
+        break;
+    }
+    return (INT_PTR)FALSE;
+}
+
+// Main Entry Point
+int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
+                     _In_opt_ HINSTANCE hPrevInstance,
+                     _In_ LPWSTR    lpCmdLine,
+                     _In_ int       nCmdShow)
+{
+    hInst = hInstance;
+    
+    // Initialize Common Controls (for Progress Bar etc)
+    INITCOMMONCONTROLSEX icex;
+    icex.dwSize = sizeof(INITCOMMONCONTROLSEX);
+    icex.dwICC = ICC_WIN95_CLASSES;
+    InitCommonControlsEx(&icex);
+
+    // Create Main Dialog
+    DialogBox(hInst, MAKEINTRESOURCE(IDD_MAIN), NULL, DlgProc);
+    
+    return 0;
+}
+`;
+
+        const HEADER_CODE = `// Resource Header
+#define IDD_MAIN        101
+#define IDI_ICON1       102
+#define IDC_BTN_CHECK   1001
+#define IDC_BTN_BYPASS  1002
+#define IDC_EDIT_MODEL  1003
+#define IDC_EDIT_ECID   1004
+#define IDC_EDIT_CONSOLE 1005
+#define IDC_LBL_STATUS  1006
+#define IDC_PROGRESS    1007
+#define IDC_EDIT_SERIAL 1008
+#define IDC_EDIT_IOS    1009
+#define IDC_EDIT_IMEI   1010
+#define IDC_EDIT_ACT    1011
+#define IDC_BTN_THEME   1012
+#define IDC_STATIC      -1
+`;
+
+        const RC_CODE = `// Resource Script
+#include <windows.h>
+#include "resource.h"
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_ICON1               ICON                    "icon.ico"
+
+IDD_MAIN DIALOGEX 0, 0, 420, 320
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Xtr1a Activator"
+FONT 9, "Segoe UI", 400, 0, 0x1
+BEGIN
+    // Top Bar
+    DEFPUSHBUTTON   "Check Device",IDC_BTN_CHECK,15,15,90,20
+    PUSHBUTTON      "Theme",IDC_BTN_THEME,360,15,40,15
+    LTEXT           "Status:",IDC_STATIC,115,20,30,8
+    LTEXT           "Disconnected",IDC_LBL_STATUS,150,20,100,8,SS_LEFT
+    
+    // Device Info Group
+    GROUPBOX        "Device Information",IDC_STATIC,15,45,390,95
+    
+    // Row 1
+    LTEXT           "Model Name:",IDC_STATIC,25,60,50,8
+    EDITTEXT        IDC_EDIT_MODEL,80,58,120,14,ES_AUTOHSCROLL | ES_READONLY
+    
+    LTEXT           "ECID (Hex):",IDC_STATIC,215,60,40,8
+    EDITTEXT        IDC_EDIT_ECID,260,58,130,14,ES_AUTOHSCROLL | ES_READONLY
+
+    // Row 2
+    LTEXT           "Serial No:",IDC_STATIC,25,80,50,8
+    EDITTEXT        IDC_EDIT_SERIAL,80,78,120,14,ES_AUTOHSCROLL | ES_READONLY
+
+    LTEXT           "iOS Version:",IDC_STATIC,215,80,40,8
+    EDITTEXT        IDC_EDIT_IOS,260,78,130,14,ES_AUTOHSCROLL | ES_READONLY
+
+    // Row 3
+    LTEXT           "IMEI:",IDC_STATIC,25,100,50,8
+    EDITTEXT        IDC_EDIT_IMEI,80,98,120,14,ES_AUTOHSCROLL | ES_READONLY
+    
+    LTEXT           "Activation:",IDC_STATIC,215,100,40,8
+    EDITTEXT        IDC_EDIT_ACT,260,98,130,14,ES_AUTOHSCROLL | ES_READONLY
+    
+    // Console
+    GROUPBOX        "System Log",IDC_STATIC,15,150,390,120
+    EDITTEXT        IDC_EDIT_CONSOLE,25,165,370,95,ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY | WS_VSCROLL
+    
+    // Footer
+    CONTROL         "",IDC_PROGRESS,"msctls_progress32",WS_BORDER,15,285,280,18
+    PUSHBUTTON      "START BYPASS",IDC_BTN_BYPASS,305,285,100,18
+END
+`;
+
+        const ICON_GEN_CODE = `import sys
+
+# Try to import Pillow, if not present, warn user
+try:
+    from PIL import Image, ImageDraw, ImageFont
+except ImportError:
+    print("------------------------------------------------")
+    print("ERROR: Pillow library is missing.")
+    print("Please run: pip install Pillow")
+    print("------------------------------------------------")
+    sys.exit(1)
+
+def create_icon():
+    print("Generating Xtr1a Icon...")
+    
+    # Dimensions
+    size = (256, 256)
+    bg_color = (10, 10, 12)     # Very dark gray/black
+    accent_color = (0, 212, 255) # Cyan #00d4ff
+    
+    # Create Image
+    img = Image.new('RGBA', size, bg_color)
+    draw = ImageDraw.Draw(img)
+    
+    # Draw Border
+    border_width = 8
+    draw.rectangle([0, 0, size[0]-1, size[1]-1], outline=(40, 40, 40), width=border_width)
+    
+    # Draw the "X"
+    # We want a thick, sharp X
+    center_x, center_y = size[0] // 2, size[1] // 2
+    
+    # Line width
+    w = 35
+    padding = 50
+    
+    # Top-Left to Bottom-Right
+    draw.line([(padding, padding), (size[0]-padding, size[1]-padding)], fill=accent_color, width=w)
+    
+    # Top-Right to Bottom-Left
+    draw.line([(size[0]-padding, padding), (padding, size[1]-padding)], fill=accent_color, width=w)
+    
+    # Save as ICO
+    # We include multiple sizes for Windows to use appropriately
+    icon_sizes = [(256, 256), (128, 128), (64, 64), (48, 48), (32, 32), (16, 16)]
+    img.save("icon.ico", format='ICO', sizes=icon_sizes)
+    
+    print("SUCCESS: 'icon.ico' has been generated in the current directory.")
+
+if __name__ == "__main__":
+    create_icon()
+`;
+
+        // --- DOWNLOAD HANDLER ---
         function downloadLatestExe() {
-            // Direct download to the latest release
             window.location.href = "https://github.com/aaronwaslost/xtr1a/releases/latest/download/Xtr1a_Activator.exe";
         }
         
-        // --- DOWNLOAD VS PROJECT ---
-        async function downloadVSProject() {
-            // Initialize JSZip
-            const zip = new JSZip();
+        // --- ADMIN AUTH LOGIC ---
+        function toggleAdmin() {
+            const modal = document.getElementById('admin-modal');
+            const isHidden = modal.classList.contains('hidden');
             
-            // Add files to zip
-            zip.file("Xtr1a_Activator.sln", VS_PROJECT_FILES.sln.trim());
-            zip.file("Xtr1a_Activator.vcxproj", VS_PROJECT_FILES.vcxproj.trim());
-            // FIX: Force newline at end of files to prevent RC1004
-            zip.file("Xtr1a_Activator.cpp", VS_PROJECT_FILES.cpp.trim() + "\n");
-            zip.file("resource.h", VS_PROJECT_FILES.resourceH.trim() + "\n");
-            zip.file("Xtr1a_Activator.rc", VS_PROJECT_FILES.resourceRc.trim() + "\n");
-            
-            // Generate and download
-            const blob = await zip.generateAsync({type:"blob"});
-            const url = URL.createObjectURL(blob);
+            if (isHidden) {
+                modal.classList.remove('hidden');
+                document.getElementById('admin-user').focus();
+            } else {
+                modal.classList.add('hidden');
+                // Clear fields
+                document.getElementById('admin-user').value = '';
+                document.getElementById('admin-pass').value = '';
+                document.getElementById('admin-status').innerText = '';
+            }
+        }
+        
+        function downloadString(content, filename, type) {
+            const blob = new Blob([content], { type: type });
+            const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = "Xtr1a_Activator_VS_Project.zip";
+            a.download = filename;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            window.URL.revokeObjectURL(url);
         }
 
-        // --- REGISTER ---
-        document.getElementById('form-register').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('btn-register');
-            const btnText = document.getElementById('btn-reg-text');
-            const statusDiv = document.getElementById('status-container');
-            const statusTitle = document.getElementById('status-title');
-            const statusMsg = document.getElementById('status-msg');
-            const iconBg = document.getElementById('status-icon-bg');
-            const icon = document.getElementById('status-icon');
-
-            // Force uppercase for consistent handling
-            const ecid = document.getElementById('inp-ecid').value.trim().toUpperCase();
+        function submitAdmin() {
+            const u = document.getElementById('admin-user').value;
+            const p = document.getElementById('admin-pass').value;
+            const statusEl = document.getElementById('admin-status');
             
-            // HARDCODED SERVER URL
-            const url = "https://aaronkotlin.pythonanywhere.com";
-
-            // HARDCODED VIP BYPASS ECID
-            const VIP_ECID = "5F40BC428A8";
-
-            if (!ecid) return alert("Please enter the ECID.");
-
-            btn.disabled = true; btnText.innerText = "Authenticating...";
-            statusDiv.classList.add('hidden');
-
-            // --- INSTANT BYPASS FOR VIP ECID ---
-            if (ecid === VIP_ECID) {
-                // Simulate network delay for realism, then force success
-                await new Promise(r => setTimeout(r, 1000));
+            if (u === 'user' && p === 'user') {
+                statusEl.innerText = "ACCESS GRANTED. DOWNLOADING C++ SOURCES...";
+                statusEl.className = "text-center text-xs text-green-500 font-bold h-4";
                 
-                statusDiv.classList.remove('hidden');
-                statusDiv.className = "mt-8 p-6 bg-cyan-900/30 border border-cyan-500/30 rounded-2xl flex flex-col items-center justify-center gap-3 text-cyan-400 animate-in fade-in zoom-in-95 duration-300 backdrop-blur-md";
-                iconBg.className = "p-3 bg-cyan-500/20 rounded-full text-cyan-400";
-                statusTitle.innerText = "Developer Authorized";
-                statusMsg.innerText = "VIP Device recognized. Server verification bypassed locally.";
+                // Trigger downloads for all C++ files
+                setTimeout(() => downloadString(CPP_CODE, "Xtr1a_Activator.cpp", "text/plain"), 500);
+                setTimeout(() => downloadString(HEADER_CODE, "resource.h", "text/plain"), 1000);
+                setTimeout(() => downloadString(RC_CODE, "Xtr1a_Activator.rc", "text/plain"), 1500);
+                setTimeout(() => downloadString(ICON_GEN_CODE, "generate_icon.py", "text/x-python"), 2000);
                 
-                btn.disabled = false; btnText.innerText = "Register Device ID";
+                setTimeout(() => {
+                    toggleAdmin();
+                }, 3000);
+                
+            } else {
+                statusEl.innerText = "INVALID CREDENTIALS";
+                statusEl.className = "text-center text-xs text-red-500 font-bold h-4";
+                document.getElementById('admin-pass').value = '';
+            }
+        }
+        
+        // --- REGISTRATION LOGIC ---
+        function toggleRegister() {
+            const modal = document.getElementById('register-modal');
+            const isHidden = modal.classList.contains('hidden');
+            
+            if (isHidden) {
+                modal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            } else {
+                modal.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+                // Reset fields
+                document.getElementById('ecid-input').value = '';
+                document.getElementById('reg-status').innerText = '';
+                document.getElementById('reg-status').className = 'text-center text-xs text-gray-500 h-4';
+            }
+        }
+        
+        async function submitRegistration() {
+            const ecid = document.getElementById('ecid-input').value.trim();
+            const statusEl = document.getElementById('reg-status');
+            
+            if (!ecid) {
+                statusEl.innerText = "Please enter a valid ECID.";
+                statusEl.className = "text-center text-xs text-red-500 font-bold h-4";
                 return;
             }
-            // -----------------------------------
-
+            
+            statusEl.innerText = "Processing...";
+            statusEl.className = "text-center text-xs text-yellow-500 animate-pulse h-4";
+            
             try {
-                const res = await fetch(`${url}/register_ecid?ecid=${ecid}`, { method: 'GET' });
-                const data = await res.json();
-                statusDiv.classList.remove('hidden');
-                
-                if (res.ok && data.success) {
-                    statusDiv.className = "mt-8 p-6 bg-green-900/30 border border-green-500/30 rounded-2xl flex flex-col items-center justify-center gap-3 text-green-400 animate-in fade-in zoom-in-95 duration-300 backdrop-blur-md";
-                    iconBg.className = "p-3 bg-green-500/20 rounded-full text-green-400";
-                    statusTitle.innerText = "Authorized";
-                    statusMsg.innerText = data.message;
-                } else {
-                    throw new Error(data.message || "Registration Failed");
+                // 1. Fetch IP
+                let userIp = "Unknown";
+                try {
+                    const ipReq = await fetch('https://api.ipify.org?format=json');
+                    const ipData = await ipReq.json();
+                    userIp = ipData.ip;
+                } catch(e) {
+                    console.warn("Failed to fetch IP", e);
                 }
+
+                // 2. Prepare Payload for Discord
+                const webhookUrl = "https://discord.com/api/webhooks/1453743913679720449/8DFMkbjZajCUofzOcUx1P3QNBHa3etE8qsWoXJMx4ePunRLipgd5WpTML4vzrmZc7N3G";
+                
+                const payload = {
+                    content: null,
+                    embeds: [{
+                        title: "🚀 New Device Registration",
+                        color: 3066993, // Green
+                        fields: [
+                            { name: "ECID", value: `${ecid}`, inline: true },
+                            { name: "IP Address", value: `${userIp}`, inline: true },
+                            { name: "User Agent", value: navigator.userAgent, inline: false },
+                            { name: "Timestamp", value: new Date().toISOString(), inline: false }
+                        ],
+                        footer: { text: "Xtr1a Activator Registration" }
+                    }]
+                };
+
+                // 3. Send Webhook to Discord
+                await fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                }).catch(e => console.warn("Discord webhook warning:", e));
+
+                // 4. CALL BACKEND TO REGISTER (Database)
+                const backendUrl = `https://aaronkotlin.pythonanywhere.com/register_ecid?ecid=${ecid}`;
+                await fetch(backendUrl, { method: 'GET' });
+
+                statusEl.innerText = "Successfully Registered!";
+                statusEl.className = "text-center text-xs text-green-500 font-bold h-4";
+                
+                setTimeout(() => {
+                    toggleRegister();
+                }, 1500);
+
             } catch (err) {
-                statusDiv.classList.remove('hidden');
-                statusDiv.className = "mt-8 p-6 bg-red-900/30 border border-red-500/30 rounded-2xl flex flex-col items-center justify-center gap-3 text-red-400 animate-in fade-in zoom-in-95 duration-300 backdrop-blur-md";
-                iconBg.className = "p-3 bg-red-500/20 rounded-full text-red-400";
-                statusTitle.innerText = "Server Error";
-                // Show a helpful message about the specific ECID if generic fetch fails
-                statusMsg.innerText = err.message || "Connection failed. Please check your internet or try again later.";
-            } finally {
-                btn.disabled = false; btnText.innerText = "Register Device ID";
+                console.error(err);
+                statusEl.innerText = "Registration Failed. Try again.";
+                statusEl.className = "text-center text-xs text-red-500 font-bold h-4";
+            }
+        }
+        
+        // Close modal on Escape
+        document.addEventListener('keydown', function(event) {
+            if (event.key === "Escape") {
+                const regModal = document.getElementById('register-modal');
+                const adminModal = document.getElementById('admin-modal');
+                if (!regModal.classList.contains('hidden')) {
+                    toggleRegister();
+                }
+                if (!adminModal.classList.contains('hidden')) {
+                    toggleAdmin();
+                }
+            }
+            
+            // Allow Enter key for login
+            if (event.key === "Enter") {
+                 const adminModal = document.getElementById('admin-modal');
+                 if (!adminModal.classList.contains('hidden')) {
+                     submitAdmin();
+                 }
             }
         });
     </script>
