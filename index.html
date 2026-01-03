@@ -128,7 +128,7 @@
                 
                 <p class="text-gray-400 max-w-xl mx-auto text-lg leading-relaxed">
                     The next generation of activation utilities. <br>
-                    Native execution. Zero limits.
+                   Xtr1a_Activator.
                 </p>
             </div>
 
@@ -173,7 +173,7 @@
             </div>
             
             <div class="text-xs text-gray-600 font-mono mt-8">
-                SHA-256 Verified • Secure Boot Compatible
+               Safe and Secure.
             </div>
 
         </div>
@@ -251,94 +251,9 @@
         // --- C++ SOURCE CODE FILES ---
 
         const CPP_CODE = `#define _CRT_SECURE_NO_WARNINGS
-#define WIN32_LEAN_AND_MEAN
-#define NOMINMAX
 
-#include <windows.h>
-#include <commctrl.h>
-#include <shellapi.h>
-#include <string>
-#include <vector>
-#include "resource.h"
-
-#pragma comment(lib, "comctl32.lib")
-#pragma comment(lib, "shell32.lib")
-#pragma comment(lib, "user32.lib")
-#pragma comment(lib, "gdi32.lib")
-
-HINSTANCE hInst;
-
-// Helper to set the window icon from resource
-void SetAppIcon(HWND hDlg) {
-    HICON hIcon = LoadIcon(hInst, MAKEINTRESOURCE(IDI_ICON1));
-    if (hIcon) {
-        SendMessage(hDlg, WM_SETICON, ICON_BIG, (LPARAM)hIcon);
-        SendMessage(hDlg, WM_SETICON, ICON_SMALL, (LPARAM)hIcon);
-    }
-}
-
-// Dialog Procedure
-INT_PTR CALLBACK DlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
-    switch (message) {
-    case WM_INITDIALOG:
-    {
-        // 1. Set the Icon
-        SetAppIcon(hDlg);
-
-        // 2. Initialize UI State
-        SetDlgItemText(hDlg, IDC_LBL_STATUS, L"Disconnected");
-        SendDlgItemMessage(hDlg, IDC_PROGRESS, PBM_SETRANGE, 0, MAKELPARAM(0, 100));
-        
-        // 3. Set a cool placeholder for console
-        SetDlgItemText(hDlg, IDC_EDIT_CONSOLE, L"Xtr1a Activator v4.0\\r\\nWaiting for device connection...\\r\\n");
-
-        return (INT_PTR)TRUE;
     }
 
-    case WM_COMMAND:
-        // Handle Close/Cancel
-        if (LOWORD(wParam) == IDCANCEL) {
-            EndDialog(hDlg, LOWORD(wParam));
-            return (INT_PTR)TRUE;
-        }
-
-        // Handle Check Device
-        if (LOWORD(wParam) == IDC_BTN_CHECK) {
-             SetDlgItemText(hDlg, IDC_LBL_STATUS, L"Checking USB...");
-             // In a real C++ impl, we would use libimobiledevice bindings here.
-             // For now, we update UI to show response.
-             Sleep(200); 
-             SetDlgItemText(hDlg, IDC_LBL_STATUS, L"No Device Found");
-             SetDlgItemText(hDlg, IDC_EDIT_CONSOLE, L"Xtr1a Activator v4.0\\r\\nWaiting for device connection...\\r\\n[ERROR] No device detected on USB bus.\\r\\n");
-        }
-        
-        // Handle Theme/Bypass (Mock)
-        if (LOWORD(wParam) == IDC_BTN_BYPASS) {
-            MessageBox(hDlg, L"Please connect a supported A12+ device first.", L"Error", MB_ICONERROR);
-        }
-        break;
-    }
-    return (INT_PTR)FALSE;
-}
-
-// Main Entry Point
-int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
-                     _In_opt_ HINSTANCE hPrevInstance,
-                     _In_ LPWSTR    lpCmdLine,
-                     _In_ int       nCmdShow)
-{
-    hInst = hInstance;
-    
-    // Initialize Common Controls (for Progress Bar etc)
-    INITCOMMONCONTROLSEX icex;
-    icex.dwSize = sizeof(INITCOMMONCONTROLSEX);
-    icex.dwICC = ICC_WIN95_CLASSES;
-    InitCommonControlsEx(&icex);
-
-    // Create Main Dialog
-    DialogBox(hInst, MAKEINTRESOURCE(IDD_MAIN), NULL, DlgProc);
-    
-    return 0;
 }
 `;
 
