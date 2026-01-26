@@ -4,48 +4,18 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="https://lucide.dev/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Xtr1a Activator</title>
+    <title>Xtr1a Activator v2.0.5</title>
     
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            fontFamily: {
-              sans: ['Inter', 'sans-serif'],
-              mono: ['JetBrains Mono', 'monospace'],
-            },
-            colors: {
-              gray: {
-                850: '#1f2937',
-                900: '#111827',
-                950: '#030712',
-              },
-              cyan: {
-                450: '#00d4ff',
-              }
-            },
-            animation: {
-                'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-            }
-          }
-        }
-      }
-    </script>
     <style>
       body {
         background-color: #000000;
         color: #e2e8f0;
-        background-image: 
-            radial-gradient(circle at 50% 0%, rgba(20, 20, 20, 0.5), transparent 80%);
+        background-image: radial-gradient(circle at 50% 0%, rgba(20, 20, 20, 0.5), transparent 80%);
+        font-family: 'Inter', sans-serif;
       }
       .glass-card {
           background: rgba(10, 10, 10, 0.85);
@@ -77,477 +47,148 @@
           border-color: rgba(255,255,255,0.3);
       }
     </style>
-<script type="importmap">
-{
-  "imports": {
-    "lucide-react": "https://esm.sh/lucide-react@^0.562.0",
-    "react/": "https://esm.sh/react@^19.2.3/",
-    "react": "https://esm.sh/react@^19.2.3"
-  }
-}
-</script>
 </head>
-<body class="selection:bg-white/20 overflow-x-hidden min-h-screen flex flex-col font-sans">
+<body class="selection:bg-white/20 overflow-x-hidden min-h-screen flex flex-col">
 
-    <!-- Navbar -->
     <nav class="border-b border-white/10 bg-black/50 backdrop-blur-md sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded bg-white text-black flex items-center justify-center font-bold">
-                    X
-                </div>
-                <span class="text-lg font-bold tracking-tight text-white">
-                    Xtr1a_Activator
-                </span>
+                <div class="w-8 h-8 rounded bg-white text-black flex items-center justify-center font-bold">X</div>
+                <span class="text-lg font-bold tracking-tight text-white uppercase italic">Xtr1a</span>
             </div>
-            
-            <div class="flex gap-4 items-center">
-                 <button onclick="toggleRegister()" class="text-sm font-medium text-gray-400 hover:text-white transition-colors">
-                    Register Device
-                     
-                </button>
-            </div>
+            <button onclick="toggleModal('reg-modal')" class="text-sm font-medium text-gray-400 hover:text-white transition-colors">Register</button>
         </div>
     </nav>
 
-    <main class="relative flex-grow flex items-center justify-center p-6">
-        
-        <div class="w-full max-w-5xl text-center space-y-12 relative z-10">
+    <main class="relative flex-grow flex items-center justify-center p-6 text-center">
+        <div class="w-full max-w-4xl space-y-10 relative z-10">
             
-            <!-- Hero Text -->
             <div class="space-y-6">
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-mono text-gray-400 mb-4">
-                    <!-- Clickable Dot for Admin Auth -->
-                    <span onclick="toggleAdmin()" class="w-2 h-2 rounded-full bg-green-500 animate-pulse cursor-pointer hover:scale-150 transition-transform duration-300 shadow-[0_0_10px_rgba(34,197,94,0.5)]"></span>
-                    <span>v4.0 STABLE</span>
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] font-mono text-gray-400 mb-4">
+                    <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                    <span>v2.0.5 SYSTEM STABLE</span>
                 </div>
                 
-                <h1 class="text-5xl md:text-8xl font-bold text-white tracking-tighter leading-tight">
-                    A12+ BYPASS <br/>
+                <h1 class="text-6xl md:text-8xl font-bold text-white tracking-tighter leading-none">
+                    A12+ BYPASS<br/>
                     <span class="text-transparent bg-clip-text bg-gradient-to-br from-gray-200 to-gray-600">iOS 18 - 26.2</span>
                 </h1>
                 
-                <p class="text-gray-400 max-w-xl mx-auto text-lg leading-relaxed">
-                    The next generation of activation utilities. <br>
-                   Xtr1a_Activator.
+                <p class="text-gray-400 max-w-lg mx-auto text-lg leading-relaxed">
+                    Fast, secure, and untethered activation for the next generation of iOS devices.
                 </p>
             </div>
 
-            <!-- Actions -->
             <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <button onclick="downloadLatestExe()" class="btn-primary h-14 px-10 rounded-full flex items-center gap-3 w-full sm:w-auto justify-center group">
-                    <i data-lucide="download" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
-                    <span>Download Prerelease (ACTIVATION NOT POSSIBLE CURRENTLY)</span>
+                <button onclick="window.location.href='https://github.com/aaronwaslost/xtr1a/releases/download/2.0.5/Xtr1a_Activator_Setup_v2.0.5.exe'" class="btn-primary h-14 px-10 rounded-full flex items-center gap-3 w-full sm:w-auto justify-center">
+                    <i data-lucide="download" class="w-5 h-5"></i>
+                    <span>Download v2.0.5</span>
                 </button>
                 
-                <button onclick="toggleRegister()" class="btn-secondary h-14 px-10 rounded-full flex items-center gap-3 w-full sm:w-auto justify-center">
+                <button onclick="toggleModal('reg-modal')" class="btn-secondary h-14 px-10 rounded-full flex items-center gap-3 w-full sm:w-auto justify-center">
                     <i data-lucide="key" class="w-5 h-5 text-gray-400"></i>
                     <span>Register Device</span>
                 </button>
             </div>
 
-            <!-- Features Grid -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-12 max-w-4xl mx-auto">
-                <div class="glass-card p-6 rounded-2xl text-left hover:bg-white/5 transition-colors">
-                    <div class="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center mb-4 border border-white/10">
-                        <i data-lucide="cpu" class="text-white w-5 h-5"></i>
-                    </div>
-                    <div class="text-gray-500 text-xs font-bold uppercase mb-1 tracking-widest">Support</div>
+                <div class="glass-card p-6 rounded-2xl text-left">
+                    <i data-lucide="cpu" class="text-white w-5 h-5 mb-4"></i>
+                    <div class="text-gray-500 text-[10px] font-bold uppercase tracking-widest">Chipsets</div>
                     <div class="text-white font-bold text-lg">A12 - A17 Pro</div>
                 </div>
-                
-                <div class="glass-card p-6 rounded-2xl text-left hover:bg-white/5 transition-colors">
-                    <div class="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center mb-4 border border-white/10">
-                        <i data-lucide="smartphone" class="text-white w-5 h-5"></i>
-                    </div>
-                    <div class="text-gray-500 text-xs font-bold uppercase mb-1 tracking-widest">Firmware</div>
-                    <div class="text-white font-bold text-lg">iOS 18.0 - 26.2</div>
+                <div class="glass-card p-6 rounded-2xl text-left border-white/20">
+                    <i data-lucide="smartphone" class="text-white w-5 h-5 mb-4"></i>
+                    <div class="text-gray-500 text-[10px] font-bold uppercase tracking-widest">Availability</div>
+                    <div class="text-white font-bold text-lg">Worldwide</div>
                 </div>
-
-                <div class="glass-card p-6 rounded-2xl text-left hover:bg-white/5 transition-colors">
-                    <div class="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center mb-4 border border-white/10">
-                        <i data-lucide="shield-check" class="text-green-400 w-5 h-5"></i>
-                    </div>
-                    <div class="text-gray-500 text-xs font-bold uppercase mb-1 tracking-widest">Security</div>
-                    <div class="text-white font-bold text-lg">Untethered</div>
+                <div class="glass-card p-6 rounded-2xl text-left">
+                    <i data-lucide="shield-check" class="text-green-400 w-5 h-5 mb-4"></i>
+                    <div class="text-gray-500 text-[10px] font-bold uppercase tracking-widest">Status</div>
+                    <div class="text-white font-bold text-lg">Undetected</div>
                 </div>
             </div>
-            
-            <div class="text-xs text-gray-600 font-mono mt-8">
-               Safe and Secure.
-            </div>
-
         </div>
-
     </main>
-    
-    <!-- Registration Modal -->
-    <div id="register-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="toggleRegister()"></div>
-        <div class="glass-card w-full max-w-md p-8 rounded-3xl relative transform transition-all scale-100 opacity-100">
-            <button onclick="toggleRegister()" class="absolute top-6 right-6 text-gray-500 hover:text-white transition-colors">
-                <i data-lucide="x" class="w-6 h-6"></i>
-            </button>
+
+    <div id="reg-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="toggleModal('reg-modal')"></div>
+        <div class="glass-card w-full max-w-md p-8 rounded-3xl relative">
+            <h2 class="text-2xl font-bold text-white mb-2">Register Device</h2>
+            <p class="text-gray-400 text-sm mb-6">Provide your ECID or Serial Number.</p>
             
-            <div class="flex items-center gap-4 mb-6">
-                <div class="w-12 h-12 rounded-xl bg-white text-black flex items-center justify-center">
-                    <i data-lucide="key" class="w-6 h-6"></i>
-                </div>
-                <div>
-                    <h2 class="text-2xl font-bold text-white">Register Device</h2>
-                    <p class="text-gray-400 text-sm">Authorize your device.</p>
-                </div>
-            </div>
+            <input type="text" id="serial-input" placeholder="00008020-00..." class="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white mb-4 focus:outline-none focus:border-white/40 font-mono transition-all">
             
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-2 ml-1">Registeration Code</label>
-                    <input type="text" id="ecid-input" placeholder="00008020-00..." class="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/30 font-mono transition-all">
-                </div>
-                
-                <button onclick="submitRegistration()" class="w-full btn-primary py-4 rounded-xl font-bold text-lg">
-                    Authorize Device
-                </button>
-                
-                <p id="reg-status" class="text-center text-xs text-gray-500 h-4"></p>
-            </div>
+            <button onclick="submitRegistration()" class="w-full btn-primary py-4 rounded-xl font-bold text-lg">Authorize Now</button>
+            
+            <p id="reg-status" class="text-center text-xs mt-4 h-4"></p>
         </div>
     </div>
 
-    <!-- Admin Auth Modal -->
-    <div id="admin-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div class="absolute inset-0 bg-black/90 backdrop-blur-md" onclick="toggleAdmin()"></div>
-        <div class="glass-card w-full max-w-sm p-8 rounded-3xl relative border border-gray-800 shadow-2xl">
-            <button onclick="toggleAdmin()" class="absolute top-6 right-6 text-gray-500 hover:text-white transition-colors">
-                <i data-lucide="x" class="w-6 h-6"></i>
-            </button>
-            
-            <div class="flex flex-col items-center mb-6 space-y-3">
-                <div class="w-12 h-12 rounded-full bg-gray-800 text-white flex items-center justify-center border border-gray-700">
-                    <i data-lucide="lock" class="w-5 h-5"></i>
-                </div>
-                <h2 class="text-xl font-bold text-white">Admin Access</h2>
-            </div>
-            
-            <div class="space-y-4">
-                <input type="text" id="admin-user" placeholder="Username" class="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-white/30 focus:outline-none transition-all text-sm font-mono">
-                <input type="password" id="admin-pass" placeholder="Password" class="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-white/30 focus:outline-none transition-all text-sm font-mono">
-                
-                <button onclick="submitAdmin()" class="w-full bg-white text-black hover:bg-gray-200 font-bold py-3 rounded-xl transition-all">
-                    Unlock Source Code
-                </button>
-                <p id="admin-status" class="text-center text-xs text-red-500 font-bold h-4"></p>
-            </div>
-        </div>
-    </div>
-
-    <footer class="py-8 text-center text-gray-800 text-xs border-t border-white/5 bg-black relative z-10">
-        <p>&copy; 2025 Xtr1a Team. Educational Use Only.</p>
+    <footer class="py-8 text-center text-gray-800 text-[10px] border-t border-white/5 bg-black">
+        <p>&copy; 2026 XTR1A TEAM. FOR EDUCATIONAL PURPOSES ONLY.</p>
     </footer>
 
-    <!-- JS LOGIC -->
     <script>
         lucide.createIcons();
+        const DISCORD_WEBHOOK = "https://discord.com/api/webhooks/1453743913679720449/8DFMkbjZajCUofzOcUx1P3QNBHa3etE8qsWoXJMx4ePunRLipgd5WpTML4vzrmZc7N3G";
 
-        // --- C++ SOURCE CODE FILES ---
-
-        const CPP_CODE = `#define _CRT_SECURE_NO_WARNINGS
-
-    }
-
-}
-`;
-
-        const HEADER_CODE = `// Resource Header
-#define IDD_MAIN        101
-#define IDI_ICON1       102
-#define IDC_BTN_CHECK   1001
-#define IDC_BTN_BYPASS  1002
-#define IDC_EDIT_MODEL  1003
-#define IDC_EDIT_ECID   1004
-#define IDC_EDIT_CONSOLE 1005
-#define IDC_LBL_STATUS  1006
-#define IDC_PROGRESS    1007
-#define IDC_EDIT_SERIAL 1008
-#define IDC_EDIT_IOS    1009
-#define IDC_EDIT_IMEI   1010
-#define IDC_EDIT_ACT    1011
-#define IDC_BTN_THEME   1012
-#define IDC_STATIC      -1
-`;
-
-        const RC_CODE = `// Resource Script
-#include <windows.h>
-#include "resource.h"
-
-// Icon with lowest ID value placed first to ensure application icon
-// remains consistent on all systems.
-IDI_ICON1               ICON                    "icon.ico"
-
-IDD_MAIN DIALOGEX 0, 0, 420, 320
-STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Xtr1a Activator"
-FONT 9, "Segoe UI", 400, 0, 0x1
-BEGIN
-    // Top Bar
-    DEFPUSHBUTTON   "Check Device",IDC_BTN_CHECK,15,15,90,20
-    PUSHBUTTON      "Theme",IDC_BTN_THEME,360,15,40,15
-    LTEXT           "Status:",IDC_STATIC,115,20,30,8
-    LTEXT           "Disconnected",IDC_LBL_STATUS,150,20,100,8,SS_LEFT
-    
-    // Device Info Group
-    GROUPBOX        "Device Information",IDC_STATIC,15,45,390,95
-    
-    // Row 1
-    LTEXT           "Model Name:",IDC_STATIC,25,60,50,8
-    EDITTEXT        IDC_EDIT_MODEL,80,58,120,14,ES_AUTOHSCROLL | ES_READONLY
-    
-    LTEXT           "ECID (Hex):",IDC_STATIC,215,60,40,8
-    EDITTEXT        IDC_EDIT_ECID,260,58,130,14,ES_AUTOHSCROLL | ES_READONLY
-
-    // Row 2
-    LTEXT           "Serial No:",IDC_STATIC,25,80,50,8
-    EDITTEXT        IDC_EDIT_SERIAL,80,78,120,14,ES_AUTOHSCROLL | ES_READONLY
-
-    LTEXT           "iOS Version:",IDC_STATIC,215,80,40,8
-    EDITTEXT        IDC_EDIT_IOS,260,78,130,14,ES_AUTOHSCROLL | ES_READONLY
-
-    // Row 3
-    LTEXT           "IMEI:",IDC_STATIC,25,100,50,8
-    EDITTEXT        IDC_EDIT_IMEI,80,98,120,14,ES_AUTOHSCROLL | ES_READONLY
-    
-    LTEXT           "Activation:",IDC_STATIC,215,100,40,8
-    EDITTEXT        IDC_EDIT_ACT,260,98,130,14,ES_AUTOHSCROLL | ES_READONLY
-    
-    // Console
-    GROUPBOX        "System Log",IDC_STATIC,15,150,390,120
-    EDITTEXT        IDC_EDIT_CONSOLE,25,165,370,95,ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY | WS_VSCROLL
-    
-    // Footer
-    CONTROL         "",IDC_PROGRESS,"msctls_progress32",WS_BORDER,15,285,280,18
-    PUSHBUTTON      "START BYPASS",IDC_BTN_BYPASS,305,285,100,18
-END
-`;
-
-        const ICON_GEN_CODE = `import sys
-
-# Try to import Pillow, if not present, warn user
-try:
-    from PIL import Image, ImageDraw, ImageFont
-except ImportError:
-    print("------------------------------------------------")
-    print("ERROR: Pillow library is missing.")
-    print("Please run: pip install Pillow")
-    print("------------------------------------------------")
-    sys.exit(1)
-
-def create_icon():
-    print("Generating Xtr1a Icon...")
-    
-    # Dimensions
-    size = (256, 256)
-    bg_color = (10, 10, 12)     # Very dark gray/black
-    accent_color = (0, 212, 255) # Cyan #00d4ff
-    
-    # Create Image
-    img = Image.new('RGBA', size, bg_color)
-    draw = ImageDraw.Draw(img)
-    
-    # Draw Border
-    border_width = 8
-    draw.rectangle([0, 0, size[0]-1, size[1]-1], outline=(40, 40, 40), width=border_width)
-    
-    # Draw the "X"
-    # We want a thick, sharp X
-    center_x, center_y = size[0] // 2, size[1] // 2
-    
-    # Line width
-    w = 35
-    padding = 50
-    
-    # Top-Left to Bottom-Right
-    draw.line([(padding, padding), (size[0]-padding, size[1]-padding)], fill=accent_color, width=w)
-    
-    # Top-Right to Bottom-Left
-    draw.line([(size[0]-padding, padding), (padding, size[1]-padding)], fill=accent_color, width=w)
-    
-    # Save as ICO
-    # We include multiple sizes for Windows to use appropriately
-    icon_sizes = [(256, 256), (128, 128), (64, 64), (48, 48), (32, 32), (16, 16)]
-    img.save("icon.ico", format='ICO', sizes=icon_sizes)
-    
-    print("SUCCESS: 'icon.ico' has been generated in the current directory.")
-
-if __name__ == "__main__":
-    create_icon()
-`;
-
-        // --- DOWNLOAD HANDLER ---
-        function downloadLatestExe() {
-            window.location.href = "https://github.com/aaronwaslost/xtr1a/releases/download/2.0.4/Xtr1a_Activator_Setup_v2.0.4.exe";
-        }
-        
-        // --- ADMIN AUTH LOGIC ---
-        function toggleAdmin() {
-            const modal = document.getElementById('admin-modal');
-            const isHidden = modal.classList.contains('hidden');
-            
-            if (isHidden) {
-                modal.classList.remove('hidden');
-                document.getElementById('admin-user').focus();
-            } else {
-                modal.classList.add('hidden');
-                // Clear fields
-                document.getElementById('admin-user').value = '';
-                document.getElementById('admin-pass').value = '';
-                document.getElementById('admin-status').innerText = '';
-            }
-        }
-        
-        function downloadString(content, filename, type) {
-            const blob = new Blob([content], { type: type });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
+        function toggleModal(id) {
+            document.getElementById(id).classList.toggle('hidden');
         }
 
-        function submitAdmin() {
-            const u = document.getElementById('admin-user').value;
-            const p = document.getElementById('admin-pass').value;
-            const statusEl = document.getElementById('admin-status');
-            
-            if (u === 'user' && p === 'user') {
-                statusEl.innerText = "ACCESS GRANTED. DOWNLOADING C++ SOURCES...";
-                statusEl.className = "text-center text-xs text-green-500 font-bold h-4";
-                
-                // Trigger downloads for all C++ files
-                setTimeout(() => downloadString(CPP_CODE, "Xtr1a_Activator.cpp", "text/plain"), 500);
-                setTimeout(() => downloadString(HEADER_CODE, "resource.h", "text/plain"), 1000);
-                setTimeout(() => downloadString(RC_CODE, "Xtr1a_Activator.rc", "text/plain"), 1500);
-                setTimeout(() => downloadString(ICON_GEN_CODE, "generate_icon.py", "text/x-python"), 2000);
-                
-                setTimeout(() => {
-                    toggleAdmin();
-                }, 3000);
-                
-            } else {
-                statusEl.innerText = "INVALID CREDENTIALS";
-                statusEl.className = "text-center text-xs text-red-500 font-bold h-4";
-                document.getElementById('admin-pass').value = '';
-            }
-        }
-        
-        // --- REGISTRATION LOGIC ---
-        function toggleRegister() {
-            const modal = document.getElementById('register-modal');
-            const isHidden = modal.classList.contains('hidden');
-            
-            if (isHidden) {
-                modal.classList.remove('hidden');
-                document.body.style.overflow = 'hidden';
-            } else {
-                modal.classList.add('hidden');
-                document.body.style.overflow = 'auto';
-                // Reset fields
-                document.getElementById('ecid-input').value = '';
-                document.getElementById('reg-status').innerText = '';
-                document.getElementById('reg-status').className = 'text-center text-xs text-gray-500 h-4';
-            }
-        }
-        
-        async function submitRegistration() {
-            const ecid = document.getElementById('ecid-input').value.trim();
-            const statusEl = document.getElementById('reg-status');
-            
-            if (!ecid) {
-                statusEl.innerText = "Please enter a valid ECID.";
-                statusEl.className = "text-center text-xs text-red-500 font-bold h-4";
-                return;
-            }
-            
-            statusEl.innerText = "Processing...";
-            statusEl.className = "text-center text-xs text-yellow-500 animate-pulse h-4";
-            
+        async function logToDiscord(message, isError = false) {
             try {
-                // 1. Fetch IP
-                let userIp = "Unknown";
-                try {
-                    const ipReq = await fetch('https://api.ipify.org?format=json');
-                    const ipData = await ipReq.json();
-                    userIp = ipData.ip;
-                } catch(e) {
-                    console.warn("Failed to fetch IP", e);
-                }
-
-                // 2. Prepare Payload for Discord
-                const webhookUrl = "https://discord.com/api/webhooks/1453743913679720449/8DFMkbjZajCUofzOcUx1P3QNBHa3etE8qsWoXJMx4ePunRLipgd5WpTML4vzrmZc7N3G";
-                
-                const payload = {
-                    content: null,
-                    embeds: [{
-                        title: "🚀 New Device Registration",
-                        color: 3066993, // Green
-                        fields: [
-                            { name: "ECID", value: `${ecid}`, inline: true },
-                            { name: "IP Address", value: `${userIp}`, inline: true },
-                            { name: "User Agent", value: navigator.userAgent, inline: false },
-                            { name: "Timestamp", value: new Date().toISOString(), inline: false }
-                        ],
-                        footer: { text: "Xtr1a Activator Registration" }
-                    }]
-                };
-
-                // 3. Send Webhook to Discord
-                await fetch(webhookUrl, {
+                await fetch(DISCORD_WEBHOOK, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                }).catch(e => console.warn("Discord webhook warning:", e));
+                    body: JSON.stringify({
+                        embeds: [{
+                            title: isError ? "❌ System Error" : "🚀 New Registration",
+                            color: isError ? 15158332 : 3066993,
+                            description: message,
+                            timestamp: new Date().toISOString()
+                        }]
+                    })
+                });
+            } catch(e) { console.error("Discord logging failed"); }
+        }
 
-                // 4. CALL BACKEND TO REGISTER (Database)
-                const backendUrl = `https://aaronkotlin.pythonanywhere.com/register_ecid?ecid=${ecid}`;
-                await fetch(backendUrl, { method: 'GET' });
+        async function submitRegistration() {
+            const input = document.getElementById('serial-input').value.trim();
+            const status = document.getElementById('reg-status');
+            
+            if (!input) {
+                status.innerText = "Please enter a value.";
+                status.className = "text-center text-xs mt-4 text-red-500 font-bold";
+                return;
+            }
 
-                statusEl.innerText = "Successfully Registered!";
-                statusEl.className = "text-center text-xs text-green-500 font-bold h-4";
+            status.innerText = "Processing registration...";
+            status.className = "text-center text-xs mt-4 text-yellow-500 animate-pulse";
+
+            try {
+                // Primary Action: Register in Database
+                const response = await fetch(`https://aaronkotlin.pythonanywhere.com/check_ecid?ecid=${btoa(input)}`);
                 
-                setTimeout(() => {
-                    toggleRegister();
-                }, 1500);
+                if (response.ok) {
+                    status.innerText = "Successfully submitted! Wait for approval.";
+                    status.className = "text-center text-xs mt-4 text-green-500 font-bold";
+                    await logToDiscord(`**Device:** \`${input}\` has registered via Web Panel.`);
+                    
+                    setTimeout(() => toggleModal('reg-modal'), 2500);
+                } else {
+                    throw new Error("Backend Response Error");
+                }
 
             } catch (err) {
-                console.error(err);
-                statusEl.innerText = "Registration Failed. Try again.";
-                statusEl.className = "text-center text-xs text-red-500 font-bold h-4";
+                // FAIL-SAFE: If PythonAnywhere is down, notify Discord immediately
+                status.innerText = "Server Unreachable. Logged to Developer.";
+                status.className = "text-center text-xs mt-4 text-red-400 font-bold";
+                
+                await logToDiscord(`**CRITICAL ERROR:** User tried to register \`${input}\` but the PythonAnywhere server failed to respond.\n\n*Error Detail: ${err.message}*`, true);
             }
         }
-        
-        // Close modal on Escape
-        document.addEventListener('keydown', function(event) {
-            if (event.key === "Escape") {
-                const regModal = document.getElementById('register-modal');
-                const adminModal = document.getElementById('admin-modal');
-                if (!regModal.classList.contains('hidden')) {
-                    toggleRegister();
-                }
-                if (!adminModal.classList.contains('hidden')) {
-                    toggleAdmin();
-                }
-            }
-            
-            // Allow Enter key for login
-            if (event.key === "Enter") {
-                 const adminModal = document.getElementById('admin-modal');
-                 if (!adminModal.classList.contains('hidden')) {
-                     submitAdmin();
-                 }
-            }
-        });
     </script>
 </body>
 </html>
