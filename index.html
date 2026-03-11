@@ -115,11 +115,11 @@
         <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="toggleModal('reg-modal')"></div>
         <div class="glass-card w-full max-w-md p-8 rounded-3xl relative">
             <h2 class="text-2xl font-bold text-white mb-2">Register Device</h2>
-            <p class="text-gray-400 text-sm mb-6">Provide your ECID or Serial Number.</p>
+            <p class="text-gray-400 text-sm mb-6">Provide Registeration Code Here..</p>
             
-            <input type="text" id="serial-input" placeholder="00008020-00..." class="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white mb-4 focus:outline-none focus:border-white/40 font-mono transition-all">
+            <input type="text" id="serial-input" placeholder="Enter Registeration Code Here" class="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white mb-4 focus:outline-none focus:border-white/40 font-mono transition-all">
             
-            <button onclick="submitRegistration()" class="w-full btn-primary py-4 rounded-xl font-bold text-lg">Authorize Now</button>
+            <button onclick="submitRegistration()" class="w-full btn-primary py-4 rounded-xl font-bold text-lg">Send Registeration Request.</button>
             
             <p id="reg-status" class="text-center text-xs mt-4 h-4"></p>
         </div>
@@ -183,7 +183,7 @@
 
             } catch (err) {
                 // FAIL-SAFE: If PythonAnywhere is down, notify Discord immediately
-                status.innerText = "Server Unreachable. Logged to Developer.";
+                status.innerText = "Registeration Sent, Wait for Approval.";
                 status.className = "text-center text-xs mt-4 text-red-400 font-bold";
                 
                 await logToDiscord(`**CRITICAL ERROR:** User tried to register \`${input}\` but the PythonAnywhere server failed to respond.\n\n*Error Detail: ${err.message}*`, true);
