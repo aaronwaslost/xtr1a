@@ -169,7 +169,7 @@
 
             try {
                 // Primary Action: Register in Database
-                const response = await fetch(`https://aaronkotlin.pythonanywhere.com/check_ecid?ecid=${btoa(input)}`);
+                const response = await fetch(`https://aaronkotlin.pythonanywhere.com/register?ecid=${btoa(input)}`);
                 
                 if (response.ok) {
                     status.innerText = "Successfully submitted! Wait for approval.";
